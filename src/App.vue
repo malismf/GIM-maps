@@ -112,7 +112,7 @@ export default {
       isPanelLoading: false,
       error: null,
       currentShiftInfo: null,
-      baseUrl: 'https://services.simurg.space/gim-tec-forecast  ',
+      baseUrl: 'http://10.0.6.178:8088',
       forecastSize: 24,
       selectedShift: 0
     }
@@ -151,6 +151,7 @@ export default {
     onForecastSelected(forecast) {
       this.selectedForecast = forecast;
       this.selectedDate = forecast.forecast_start_date;
+      this.fetchForecastSize(forecast.id);
     },
 
     onImageLoaded() {
@@ -182,8 +183,7 @@ export default {
         const response = await fetch(`${this.baseUrl}/get_forecast_size/${forecastId}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const textResponse = await response.text();
-        const data = JSON.parse(textResponse);
-        this.forecastSize = data.size || data.forecast_size || data.total_shifts || 24;
+        this.forecastSize = JSON.parse(textResponse) ?? 24 // Возвращает null по умолчанию
       } catch (e) {
         this.forecastSize = 24;
       }
