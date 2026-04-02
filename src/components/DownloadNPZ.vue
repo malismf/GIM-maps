@@ -1,4 +1,26 @@
 <template>
+  <h1>Download </h1>
+  <div class="download-container">
+  <div class="download-npz">
+    <button
+      @click="downloadIonex"
+      :disabled="!forecastId || isLoading"
+      class="download-btn"
+    >
+      <span v-if="isLoading" class="btn-content">
+        <span class="btn-spinner"></span>
+        Download...
+      </span>
+      <span v-else-if="success" class="btn-content">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Ready!
+      </span>
+      <span v-else class="btn-content">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Download *.ionex
+      </span>
+    </button>
+  </div> 
   <div class="download-npz">
     <button
       @click="downloadNPZ"
@@ -15,9 +37,10 @@
       </span>
       <span v-else class="btn-content">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-        Download *.npz file
+        Download *.npz
       </span>
     </button>
+  </div>
   </div>
 </template>
 
@@ -35,7 +58,7 @@ export default {
       error: null,
       success: false,
       isLoading: false,
-      baseUrl: 'https://services.simurg.space/gim-tec-forecast'
+      baseUrl: 'http://10.0.6.178:8088'
     }
   },
   methods: {
@@ -54,6 +77,28 @@ export default {
         this.downloadBlob(npzBlob, `forecast_${this.forecastId}.npz`);
         this.success = true;
         setTimeout(() => { this.success = false; }, 2000); // Состояние "Готово" на 2 секунды
+      } catch (error) {
+        // Ошибки теперь обрабатываются глобально
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async downloadIonex() {
+      if (!this.forecastId || this.isLoading) return;
+      this.error = null;
+      this.success = false;
+      this.isLoading = true;
+      try {
+        const response = await fetch(`${this.baseUrl}/get_ionex_file/${this.forecastId}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/ionex, application/octet-stream, text/plain' }
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const ionexBlob = await response.blob();
+        this.downloadBlob(ionexBlob, `forecast_${this.forecastId}.ionex`);
+        this.success = true;
+        setTimeout(() => { this.success = false; }, 2000);
       } catch (error) {
         // Ошибки теперь обрабатываются глобально
       } finally {
@@ -83,7 +128,6 @@ export default {
   display: block;
   width: 100%;
   max-width: none;
-  margin: 16px 0 0 0;
   box-sizing: border-box;
   padding: 0;
   animation: slideUp 0.3s ease-out;
@@ -144,6 +188,12 @@ export default {
   will-change: transform;
 }
 
+.download-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -151,7 +201,6 @@ export default {
 /* Адаптивность для планшетов */
 @media (max-width: 1024px) {
   .download-npz {
-    margin-top: var(--spacing-md, 16px);
     padding: 0 var(--spacing-xs, 8px);
   }
 
@@ -174,7 +223,6 @@ export default {
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
   .download-npz {
-    margin: 12px 0 0 0;
   }
   .download-btn {
     width: 100%;
@@ -199,7 +247,6 @@ export default {
 /* Адаптивность для очень маленьких экранов */
 @media (max-width: 480px) {
   .download-npz {
-    margin-top: var(--spacing-xs, 8px);
     padding: 0 var(--spacing-xs, 8px);
   }
 
