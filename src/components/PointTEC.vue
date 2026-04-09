@@ -12,11 +12,14 @@
 </template>
 
 <script>
-props = {
+export default {
+  name: 'PointTEC',
+props: {
   forecastId: {
     type: [String, Number],
     default: null
-  }
+  },
+}
 }
 
 </script>
