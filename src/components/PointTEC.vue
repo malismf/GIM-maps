@@ -34,7 +34,7 @@
           :disabled="isLoading || !isInputValid"
           @click="fetchPointTEC"
         >
-          {{ isLoading ? 'Loading…' : 'Fetch TEC' }}
+          {{ isLoading ? 'Loading…' : 'Get TEC' }}
         </button>
       </div>
   
@@ -52,7 +52,7 @@
       </div>
   
       <div v-else-if="!isLoading && !error" class="pointtec-empty">
-        Enter coordinates and press Fetch TEC to display the chart.
+        Enter coordinates and press Get TEC to display the chart.
       </div>
     </div>
   </template>
@@ -105,6 +105,14 @@
       }
     },
   
+    watch: {
+      forecastId(newVal) {
+        if (newVal && this.latitude !== null && this.longitude !== null) {
+          this.fetchPointTEC();
+        }
+      }
+    },
+  
     beforeUnmount() {
       this.destroyChart()
     },
@@ -142,6 +150,29 @@
         }
       },
   
+      tecuToColor(value, alpha = 1) {
+        const stops = [
+          { val:  0, rgb: [10,   0, 102] },
+          { val: 10, rgb: [0,    0, 255] },
+          { val: 20, rgb: [0,  170, 255] },
+          { val: 30, rgb: [0,  255, 255] },
+          { val: 40, rgb: [0,  255,   0] },
+          { val: 50, rgb: [170, 255,  0] },
+          { val: 60, rgb: [255, 255,  0] },
+          { val: 70, rgb: [255, 136,  0] },
+          { val: 80, rgb: [255,   0,  0] },
+          { val: 90, rgb: [170,   0,  0] },
+        ]
+        const clamped = Math.max(stops[0].val, Math.min(stops[stops.length - 1].val, value))
+        let chosen = stops[0]
+        for (let i = 0; i < stops.length; i++) {
+          if (clamped >= stops[i].val) chosen = stops[i]
+          else break
+        }
+        const [r, g, b] = chosen.rgb
+        return `rgba(${r},${g},${b},${alpha})`
+      },
+  
       renderChart() {
         this.destroyChart()
   
@@ -155,6 +186,7 @@
           return `${hh}:${mm}`
         })
         const values = this.chartData.map(item => item.tecu)
+        const pointColors = values.map(v => this.tecuToColor(v, 1))
   
         this.chart = new Chart(canvas, {
           type: 'line',
@@ -164,11 +196,11 @@
               {
                 label: 'TECU',
                 data: values,
-                backgroundColor: 'rgba(0, 99, 200, 0.15)',
-                borderColor: 'rgba(0, 99, 200, 1)',
+                backgroundColor: 'rgba(100, 140, 200, 0.10)',
+                borderColor: 'rgba(100, 140, 200, 0.5)',
                 borderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6,
+                pointRadius: 6,
+                pointHoverRadius: 8,
                 pointBackgroundColor: 'rgba(0, 99, 200, 1)',
                 fill: true,
                 tension: 0.35
@@ -182,7 +214,13 @@
               legend: { display: false },
               tooltip: {
                 callbacks: {
-                  label: ctx => `${ctx.parsed.y.toFixed(3)} TECU`
+                  label: ctx => `${ctx.parsed.y.toFixed(3)} TECU`,
+                  labelColor: ctx => ({
+                    borderColor: pointColors[ctx.dataIndex],
+                    backgroundColor: pointColors[ctx.dataIndex],
+                    borderWidth: 2,
+                    borderRadius: 3
+                  })
                 }
               }
             },
@@ -190,7 +228,7 @@
               x: {
                 title: {
                   display: true,
-                  text: 'Time (UTC)',
+                  text: 'Time',
                   font: { size: 13, weight: '600' }
                 },
                 ticks: { font: { size: 11 } },
@@ -216,11 +254,17 @@
           this.chart = null
         }
       }
+    },
+
     }
-  }
   </script>
   
   <style scoped>
+
+  h1 {
+    margin-bottom: 16px;
+  }
+
   .pointtec-container {
     width: 100%;
     background-color: var(--panel-background, #ffffff);
@@ -316,7 +360,7 @@
   
   .chart-container {
     position: relative;
-    height: 520px;        
+    height: 520px;
     width: 100%;
     padding: 16px;
     background-color: var(--background-color, #f8f9fa);
