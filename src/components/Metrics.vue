@@ -467,6 +467,10 @@
     background-color: var(--background-color, #f8f9fa);
   }
 
+  h1 {
+    margin-bottom: 16px;
+  }
+
   /* Цветовая индикация качества метрик */
   .score-good {
     background-color: #d4edda !important;

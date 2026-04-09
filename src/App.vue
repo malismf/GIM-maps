@@ -96,12 +96,10 @@
             :selectedDate="selectedDate"
           />
 
-          <div
+          <PointTEC
             v-else-if="activePanel === 'pointtec' && selectedModel && selectedDate"
             class="pointtec-placeholder"
-          >
-            Point TEC 
-          </div>
+          />
         </div>
       </template>
 
@@ -119,6 +117,7 @@ import ImageViewer from './components/ImageViewer.vue';
 import DownloadNPZ from './components/DownloadNPZ.vue';
 import Metrics from './components/Metrics.vue';
 import ImageSlider from './components/ImageSlider.vue';
+import PointTEC from './components/PointTEC.vue';
 
 export default {
   name: 'App',
@@ -128,7 +127,8 @@ export default {
     ImageViewer,
     DownloadNPZ,
     Metrics,
-    ImageSlider
+    ImageSlider,
+    PointTEC
   },
 
   data() {
@@ -347,10 +347,6 @@ body {
 }
 
 .pointtec-placeholder {
-  padding: 16px 12px;
-  border: 1px dashed var(--border-color, #ddd);
-  border-radius: 8px;
-  color: var(--text-color, #333);
 }
 
 .forecast-header {
