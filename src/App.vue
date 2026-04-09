@@ -92,13 +92,14 @@
 
           <Metrics
             v-if="activePanel === 'metrics' && selectedModel && selectedDate"
-            :selectedModel="selectedModel"
-            :selectedDate="selectedDate"
+            :selected-model="selectedModel"
+            :selected-date="selectedDate"
           />
 
           <PointTEC
             v-else-if="activePanel === 'pointtec' && selectedModel && selectedDate"
             class="pointtec-placeholder"
+            :forecast-id="selectedForecast?.id"
           />
         </div>
       </template>

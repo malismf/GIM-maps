@@ -12,6 +12,12 @@
 </template>
 
 <script>
+props = {
+  forecastId: {
+    type: [String, Number],
+    default: null
+  }
+}
 
 </script>
 <style scoped>
