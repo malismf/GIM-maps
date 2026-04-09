@@ -67,7 +67,10 @@
             :is-panel-loading="isPanelLoading"
           />
 
-          <DownloadNPZ :forecast-id="selectedForecast?.id"/>
+          <DownloadNPZ 
+            :forecast-id="selectedForecast?.id" 
+            :forecast-start-date="selectedForecast?.forecast_start_date"
+          />
 
           <div class="panel-tabs">
             <div
@@ -297,7 +300,7 @@ body {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  padding: 20px 12px;
+  padding: 20px 25px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
