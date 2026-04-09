@@ -1,6 +1,6 @@
 <template>
   <div class="metrics-container">
-
+  <h1>Metrics</h1>
     <div v-if="error" class="error-message">
       {{ error }}
     </div>
@@ -343,8 +343,6 @@
     width: 100%;
     max-width: 100%;
     background-color: var(--panel-background, #ffffff);
-    padding: var(--spacing-lg, 20px);
-    margin-top: var(--spacing-lg, 20px);
   }
 
   .metrics-container h2 {

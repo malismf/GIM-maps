@@ -211,8 +211,6 @@ export default {
 <style scoped>
 .image-slider-container {
   width: 100%;
-  max-width: 600px;
-  margin: 20px auto 0 auto;
   padding: 0;
   box-sizing: border-box;
 }

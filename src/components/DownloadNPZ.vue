@@ -1,6 +1,7 @@
 <template>
-  <h1>Download </h1>
   <div class="download-container">
+  <h1>Download</h1>
+  <div class = "download-btns">
   <div class="download-npz">
     <button
       @click="downloadIonex"
@@ -40,6 +41,7 @@
         Download *.npz
       </span>
     </button>
+  </div>
   </div>
   </div>
 </template>
@@ -190,7 +192,11 @@ export default {
 
 .download-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+}
+
+.download-btns {
+  display: flex;
   gap: 10px;
 }
 
@@ -222,8 +228,7 @@ export default {
 
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
-  .download-npz {
-  }
+
   .download-btn {
     width: 100%;
     min-width: 0;
