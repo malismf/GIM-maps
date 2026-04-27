@@ -2,7 +2,7 @@
     <div class="pointtec-container">
       <h1>Point TEC</h1>
   
-      <div class="pointtec-controls">
+      <form class="pointtec-controls" @submit.prevent="fetchPointTEC">
         <div class="pointtec-field">
           <label for="lat-input">Latitude</label>
           <input
@@ -31,12 +31,12 @@
         </div>
         <button
           class="pointtec-btn"
+          type="submit"
           :disabled="isLoading || !isInputValid"
-          @click="fetchPointTEC"
         >
           {{ isLoading ? 'Loading…' : 'Get TEC' }}
         </button>
-      </div>
+      </form>
   
       <div v-if="error" class="pointtec-error">{{ error }}</div>
   
