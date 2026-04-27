@@ -91,13 +91,15 @@
           </div>
 
           <Metrics
-            v-if="activePanel === 'metrics' && selectedModel && selectedDate"
+            v-if="selectedModel && selectedDate"
+            v-show="activePanel === 'metrics'"
             :selected-model="selectedModel"
             :selected-date="selectedDate"
           />
 
           <PointTEC
-            v-else-if="activePanel === 'pointtec' && selectedModel && selectedDate"
+            v-if="selectedModel && selectedDate"
+            v-show="activePanel === 'pointtec'"
             class="pointtec-placeholder"
             :forecast-id="selectedForecast?.id"
           />
@@ -345,9 +347,6 @@ body {
   background: rgba(0, 123, 255, 0.08);
   color: var(--primary-color, #007bff);
   font-weight: 600;
-}
-
-.pointtec-placeholder {
 }
 
 .forecast-header {
