@@ -42,8 +42,8 @@
   
       <div v-if="chartData.length" class="chart-wrapper">
         <div class="chart-meta">
-          <span>Lat: {{ lastFetchedLat }}°</span>
-          <span>Lon: {{ lastFetchedLon }}°</span>
+          <span>{{ formattedLatitude }}</span>
+          <span>{{ formattedLongitude }}</span>
           <span>{{ chartDateLabel }}</span>
         </div>
         <div class="chart-container">
@@ -102,6 +102,14 @@
         if (!this.chartData.length) return ''
         const d = new Date(this.chartData[0].date)
         return d.toLocaleDateString('ru-RU', { year: 'numeric', month: '2-digit', day: '2-digit' })
+      },
+
+      formattedLatitude() {
+        return this.formatCoordinate('Lat', this.lastFetchedLat, 'N', 'S')
+      },
+
+      formattedLongitude() {
+        return this.formatCoordinate('Lon', this.lastFetchedLon, 'E', 'W')
       }
     },
   
@@ -118,6 +126,16 @@
     },
   
     methods: {
+      formatCoordinate(label, value, positiveDirection, negativeDirection) {
+        if (value === null || value === undefined || value === '') return `${label}: -`
+        const numericValue = Number(value)
+        if (Number.isNaN(numericValue)) return `${label}: -`
+
+        const direction = numericValue < 0 ? negativeDirection : positiveDirection
+        const absoluteValue = Math.abs(numericValue)
+        return `${label}: ${numericValue}° (${absoluteValue}° ${direction})`
+      },
+
       async fetchPointTEC() {
         if (!this.isInputValid) return
   
