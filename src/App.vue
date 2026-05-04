@@ -195,7 +195,7 @@ export default {
 
     onImageLoaded() {
       this.isPanelLoading = false;
-      this.error = null; 
+      this.error = null;
     },
 
     onImageError(error) {
@@ -222,7 +222,7 @@ export default {
         const response = await fetch(`${this.baseUrl}/get_forecast_size/${forecastId}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const textResponse = await response.text();
-        this.forecastSize = JSON.parse(textResponse) ?? 24 // Возвращает null по умолчанию
+        this.forecastSize = JSON.parse(textResponse) ?? 24
       } catch (e) {
         this.forecastSize = 24;
       }
@@ -490,19 +490,27 @@ body {
 
 @media (max-width: 1024px) {
   #app {
-    padding: 0 4px;
+    padding: 0 16px;
     margin-top: 24px;
   }
   .main-layout {
     flex-direction: column;
     gap: var(--spacing-md);
   }
-  .left-panel, .right-panels, .right-panel {
+  
+  .left-panel,
+  .right-panels {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
     position: static;
     padding: 0;
+  }
+  .right-panel {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    position: static;
   }
 }
 
@@ -562,7 +570,7 @@ body {
 /* Improvements for touch devices */
 @media (hover: none) and (pointer: coarse) {
   .image-controls select {
-    min-height: 44px; /* Minimum height for touch */
+    min-height: 44px;
   }
 
   .forecast-info {
