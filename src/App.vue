@@ -11,67 +11,77 @@
       />
     </div>
 
-    <div class="right-panel">
-      <div v-if="isPanelLoading" class="right-panel-loading-overlay">
-        <div class="spinner"></div>
-        <p>Loading forecast data...</p>
-      </div>
-
-      <div v-if="error" class="error-display">
-        <p><strong>Error:</strong> {{ error }}</p>
-      </div>
-
-      <template v-if="selectedForecast">
-        <div class="forecast-header">
-          <h2>Forecast View</h2>
-          <div class="forecast-info">
-            <p><strong>Date:</strong> {{ formatDate(selectedForecast.forecast_start_date) }}</p>
-            <p><strong>ID:</strong> {{ selectedForecast.id }}</p>
-
-            <div v-if="forecastSize > 0" class="image-controls">
-              <label for="shift-select"><strong>Map:</strong></label>
-              <select
-                id="shift-select"
-                v-model.number="selectedShift"
-                :disabled="isPanelLoading"
-              >
-                <option
-                  v-for="n in forecastSize"
-                  :key="n - 1"
-                  :value="n - 1"
-                >
-                  {{ n - 1 }} ({{ getShiftTime(n - 1) }})
-                </option>
-              </select>
-            </div>
-
-            <p v-if="forecastSize > 0" class="total-maps-info">
-              <strong>Total:</strong> {{ forecastSize }}
-            </p>
-          </div>
+    <div class="right-panels">
+      <div class="right-panel">
+        <div v-if="isPanelLoading" class="right-panel-loading-overlay">
+          <div class="spinner"></div>
+          <p>Loading forecast data...</p>
         </div>
 
+        <div v-if="error" class="error-display">
+          <p><strong>Error:</strong> {{ error }}</p>
+        </div>
+
+        <template v-if="selectedForecast">
+          <div class="forecast-header">
+            <h2>Forecast View</h2>
+            <div class="forecast-info">
+              <p><strong>Date:</strong> {{ formatDate(selectedForecast.forecast_start_date) }}</p>
+              <p><strong>ID:</strong> {{ selectedForecast.id }}</p>
+
+              <div v-if="forecastSize > 0" class="image-controls">
+                <label for="shift-select"><strong>Map:</strong></label>
+                <select
+                  id="shift-select"
+                  v-model.number="selectedShift"
+                  :disabled="isPanelLoading"
+                >
+                  <option
+                    v-for="n in forecastSize"
+                    :key="n - 1"
+                    :value="n - 1"
+                  >
+                    {{ n - 1 }} ({{ getShiftTime(n - 1) }})
+                  </option>
+                </select>
+              </div>
+
+              <p v-if="forecastSize > 0" class="total-maps-info">
+                <strong>Total:</strong> {{ forecastSize }}
+              </p>
+            </div>
+          </div>
+
+          <div class="viewer-area">
+            <ImageViewer
+              :key="selectedForecast?.id"
+              :forecast-id="selectedForecast?.id"
+              :is-panel-loading="isPanelLoading"
+              :selected-shift="selectedShift"
+              @image-loaded="onImageLoaded"
+              @image-error="onImageError"
+            />
+
+            <ImageSlider
+              :forecast-size="forecastSize"
+              v-model:selected-shift="selectedShift"
+              :is-panel-loading="isPanelLoading"
+            />
+
+            <DownloadNPZ
+              :forecast-id="selectedForecast?.id"
+              :forecast-start-date="selectedForecast?.forecast_start_date"
+            />
+          </div>
+        </template>
+
+        <div v-else-if="!isPanelLoading && !error" class="viewer-area no-forecast-selected">
+          <p>Select a model and date to view GIM maps.</p>
+        </div>
+      </div>
+
+      <div v-if="selectedForecast" class="right-panel">
         <div class="viewer-area">
-          <ImageViewer
-            :key="selectedForecast?.id"
-            :forecast-id="selectedForecast?.id"
-            :is-panel-loading="isPanelLoading"
-            :selected-shift="selectedShift"
-            @image-loaded="onImageLoaded"
-            @image-error="onImageError"
-          />
-          
-          <ImageSlider
-            :forecast-size="forecastSize"
-            v-model:selected-shift="selectedShift"
-            :is-panel-loading="isPanelLoading"
-          />
-
-          <DownloadNPZ 
-            :forecast-id="selectedForecast?.id" 
-            :forecast-start-date="selectedForecast?.forecast_start_date"
-          />
-
           <div class="panel-tabs">
             <div
               class="panel-tab"
@@ -104,10 +114,6 @@
             :forecast-id="selectedForecast?.id"
           />
         </div>
-      </template>
-
-      <div v-else-if="!isPanelLoading && !error" class="viewer-area no-forecast-selected">
-        <p>Select a model and date to view GIM maps.</p>
       </div>
     </div>
   </div>
@@ -299,6 +305,16 @@ body {
   z-index: 1;
 }
 
+.right-panels {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .right-panel {
   width: 100%;
   min-width: 0;
@@ -481,7 +497,7 @@ body {
     flex-direction: column;
     gap: var(--spacing-md);
   }
-  .left-panel, .right-panel {
+  .left-panel, .right-panels, .right-panel {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
@@ -497,6 +513,9 @@ body {
   }
   .main-layout {
     gap: var(--spacing-sm);
+  }
+  .right-panels {
+    gap: 12px;
   }
   .right-panel {
     padding: 12px 2px;
