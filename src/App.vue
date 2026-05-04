@@ -58,6 +58,8 @@
               :forecast-id="selectedForecast?.id"
               :is-panel-loading="isPanelLoading"
               :selected-shift="selectedShift"
+              :forecast-size="forecastSize"
+              v-model:selected-shift="selectedShift"
               @image-loaded="onImageLoaded"
               @image-error="onImageError"
             />

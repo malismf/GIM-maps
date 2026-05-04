@@ -1,5 +1,12 @@
 <template>
   <div class="image-viewer">
+    <button
+      v-if="forecastSize > 1 && !isPanelLoading"
+      class="nav-btn"
+      :disabled="selectedShift === 0"
+      @click="prev"
+    ><img src = "../assets/icons/arrow-left.svg"></button>
+
     <div class="image-container">
       <div v-if="isImageLoading && !isPanelLoading" class="loading-overlay">
         <div class="spinner"></div>
@@ -18,6 +25,13 @@
         <p>Image not loaded</p>
       </div>
     </div>
+
+    <button
+      v-if="forecastSize > 1 && !isPanelLoading"
+      class="nav-btn"
+      :disabled="selectedShift === forecastSize - 1"
+      @click="next"
+    ><img src = "../assets/icons/arrow-right.svg"></button>
   </div>
 </template>
 
@@ -27,9 +41,10 @@ export default {
   props: {
     forecastId: { type: [String, Number], required: true },
     isPanelLoading: { type: Boolean, default: false },
-    selectedShift: { type: Number, required: true }
+    selectedShift: { type: Number, required: true },
+    forecastSize: { type: Number, default: 24 }
   },
-  emits: ['image-error', 'image-loaded'],
+  emits: ['image-error', 'image-loaded', 'update:selectedShift'],
   data() {
     return {
       currentImage: null,
@@ -60,47 +75,59 @@ export default {
     }
   },
   methods: {
+    prev() {
+      if (this.selectedShift > 0) {
+        this.$emit('update:selectedShift', this.selectedShift - 1);
+      }
+    },
+
+    next() {
+      if (this.selectedShift < this.forecastSize - 1) {
+        this.$emit('update:selectedShift', this.selectedShift + 1);
+      }
+    },
+
     debouncedLoadImage(shift) {
       if (this.debounceTimer) {
         clearTimeout(this.debounceTimer);
       }
-      
+
       if (this.currentImageObject) {
         this.currentImageObject.onload = null;
         this.currentImageObject.onerror = null;
         this.currentImageObject.src = '';
         this.currentImageObject = null;
       }
-      
+
       if (this.currentImage === null && this.currentRequestShift === null) {
         this.loadImage(shift);
         return;
       }
-      
+
       this.debounceTimer = setTimeout(() => {
         this.loadImage(shift);
         this.debounceTimer = null;
       }, 300);
     },
-    
+
     loadImage(shift) {
       if (!this.forecastId) return;
-      
+
       if (this.currentImageObject) {
         this.currentImageObject.onload = null;
         this.currentImageObject.onerror = null;
         this.currentImageObject.src = '';
         this.currentImageObject = null;
       }
-      
+
       this.currentRequestShift = shift;
       this.isImageLoading = true;
       this.imageError = null;
-      
+
       const imageUrl = `${this.baseUrl}/get_forecast_image/${this.forecastId}?shift=${shift}`;
       const img = new Image();
       this.currentImageObject = img;
-      
+
       img.onload = () => {
         if (this.currentRequestShift === shift && this.currentImageObject === img) {
           this.currentImage = imageUrl;
@@ -109,7 +136,7 @@ export default {
           this.currentImageObject = null;
         }
       };
-      
+
       img.onerror = () => {
         if (this.currentRequestShift === shift && this.currentImageObject === img) {
           this.imageError = 'Не удалось загрузить изображение.';
@@ -118,7 +145,7 @@ export default {
           this.currentImageObject = null;
         }
       };
-      
+
       img.src = `${imageUrl}&t=${Date.now()}`;
     }
   }
@@ -129,8 +156,40 @@ export default {
 .image-viewer {
   width: 100%;
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
   max-width: 100%;
+}
+
+.nav-btn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, transform 0.1s;
+  user-select: none;
+  padding: 0;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background-color: #2491ff;
+  transform: scale(1.05);
+}
+
+.nav-btn:disabled {
+  background-color: #dadada;
+  cursor: default;
 }
 
 .image-container {
@@ -206,7 +265,6 @@ export default {
   padding: var(--spacing-lg, 20px);
 }
 
-/* Адаптивность для планшетов */
 @media (max-width: 1024px) {
   .image-container {
     max-width: 500px;
@@ -227,7 +285,6 @@ export default {
   }
 }
 
-/* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
   .image-container {
     max-width: 100%;
@@ -248,9 +305,14 @@ export default {
     height: 28px;
     margin-bottom: var(--spacing-xs, 8px);
   }
+
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.4rem;
+  }
 }
 
-/* Адаптивность для очень маленьких экранов */
 @media (max-width: 480px) {
   .image-container {
     border-radius: var(--border-radius, 6px);
@@ -272,7 +334,6 @@ export default {
   }
 }
 
-/* Улучшения для touch-устройств */
 @media (hover: none) and (pointer: coarse) {
   .image-container {
     border-width: 2px;
@@ -283,7 +344,6 @@ export default {
   }
 }
 
-/* Улучшения для высокого DPI экранов */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .gim-image {
     image-rendering: -webkit-optimize-contrast;
@@ -291,7 +351,6 @@ export default {
   }
 }
 
-/* Анимации для плавного появления */
 @keyframes fadeIn {
   from {
     opacity: 0;
