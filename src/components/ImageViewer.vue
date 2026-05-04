@@ -172,7 +172,7 @@ export default {
 .nav-btn {
   flex-shrink: 0;
   width: 40px;
-  height: 40px;
+  height: 60px;
   background-color: var(--primary-color);
   border: none;
   border-radius: 6px;
@@ -181,9 +181,11 @@ export default {
   align-items: center;
   justify-content: center;
   opacity: 1;
-  transition: background-color 0.15s, transform 0.1s, opacity 0.2s;
+  transition: opacity 0.2s;
   user-select: none;
   padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .nav-btn--hidden {
@@ -193,7 +195,17 @@ export default {
 
 .nav-btn:hover:not(:disabled) {
   background-color: #2491ff;
-  transform: scale(1.05);
+}
+
+.nav-btn:active {
+  background-color: var(--primary-color);
+  transform: none;
+  filter: none;
+}
+
+.nav-btn:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 .nav-btn:disabled {
