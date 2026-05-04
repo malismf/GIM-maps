@@ -1,11 +1,16 @@
 <template>
-  <div class="image-viewer">
+  <div
+    class="image-viewer"
+    @mouseenter="isHovered = true"
+    @mouseleave="isHovered = false"
+  >
     <button
       v-if="forecastSize > 1 && !isPanelLoading"
       class="nav-btn"
+      :class="{ 'nav-btn--hidden': !isHovered }"
       :disabled="selectedShift === 0"
       @click="prev"
-    ><img src = "../assets/icons/arrow-left.svg"></button>
+    ><img src="../assets/icons/arrow-left.svg"></button>
 
     <div class="image-container">
       <div v-if="isImageLoading && !isPanelLoading" class="loading-overlay">
@@ -29,9 +34,10 @@
     <button
       v-if="forecastSize > 1 && !isPanelLoading"
       class="nav-btn"
+      :class="{ 'nav-btn--hidden': !isHovered }"
       :disabled="selectedShift === forecastSize - 1"
       @click="next"
-    ><img src = "../assets/icons/arrow-right.svg"></button>
+    ><img src="../assets/icons/arrow-right.svg"></button>
   </div>
 </template>
 
@@ -53,7 +59,8 @@ export default {
       baseUrl: 'https://services.simurg.space/gim-tec-forecast',
       currentRequestShift: null,
       debounceTimer: null,
-      currentImageObject: null
+      currentImageObject: null,
+      isHovered: false
     };
   },
   watch: {
@@ -167,19 +174,21 @@ export default {
   width: 40px;
   height: 40px;
   background-color: var(--primary-color);
-  color: white;
   border: none;
   border-radius: 6px;
-  font-size: 1.6rem;
-  font-weight: 600;
-  line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.15s, transform 0.1s;
+  opacity: 1;
+  transition: background-color 0.15s, transform 0.1s, opacity 0.2s;
   user-select: none;
   padding: 0;
+}
+
+.nav-btn--hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .nav-btn:hover:not(:disabled) {
@@ -309,7 +318,6 @@ export default {
   .nav-btn {
     width: 36px;
     height: 36px;
-    font-size: 1.4rem;
   }
 }
 
@@ -341,6 +349,11 @@ export default {
 
   .gim-image {
     cursor: pointer;
+  }
+
+  .nav-btn--hidden {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 
