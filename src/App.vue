@@ -195,7 +195,7 @@ export default {
 
     onImageLoaded() {
       this.isPanelLoading = false;
-      this.error = null;
+      this.error = null; 
     },
 
     onImageError(error) {
@@ -497,20 +497,18 @@ body {
     flex-direction: column;
     gap: var(--spacing-md);
   }
-  
-  .left-panel,
-  .right-panels {
+  .left-panel {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    position: static;
+  }
+  .right-panels, .right-panel {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
     position: static;
     padding: 0;
-  }
-  .right-panel {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    position: static;
   }
 }
 
