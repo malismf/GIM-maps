@@ -1,7 +1,30 @@
 <template>
     <div class="download-multiple-container">
-      <h2>Download data</h2>
-  
+      <div class="download-multiple-header">
+        <h2>Download data</h2>
+        <span
+          ref="helpTrigger"
+          class="download-multiple-help"
+          :class="{ 'download-multiple-help--open': helpOpen }"
+          role="button"
+          :aria-expanded="helpOpen"
+          aria-describedby="download-multiple-help-tooltip"
+          @click.stop="onHelpClick"
+        >
+          ?
+          <span
+            id="download-multiple-help-tooltip"
+            class="download-multiple-help-tooltip"
+            role="tooltip"
+          >
+            <ul class="download-multiple-help-list">
+              <li>Use a date range of no more than one month.</li>
+              <li>Downloaded files are provided in IONEX format.</li>
+            </ul>
+          </span>
+        </span>
+      </div>
+
       <div class="download-multiple-form">
         <div class="date-field">
           <label for="date-from">From</label>
@@ -80,8 +103,17 @@
         isLoading: false,
         success: false,
         error: null,
-        baseUrl: 'http://10.0.6.178:8088'
+        baseUrl: 'http://10.0.6.178:8088',
+        helpOpen: false
       }
+    },
+
+    mounted() {
+      document.addEventListener('click', this.onDocumentClick)
+    },
+
+    beforeUnmount() {
+      document.removeEventListener('click', this.onDocumentClick)
     },
   
     computed: {
@@ -91,6 +123,22 @@
     },
   
     methods: {
+      isCoarsePointer() {
+        return window.matchMedia('(hover: none) and (pointer: coarse)').matches
+      },
+
+      onHelpClick() {
+        if (!this.isCoarsePointer()) return
+        this.helpOpen = !this.helpOpen
+      },
+
+      onDocumentClick(event) {
+        if (!this.helpOpen || !this.$refs.helpTrigger) return
+        if (!this.$refs.helpTrigger.contains(event.target)) {
+          this.helpOpen = false
+        }
+      },
+
       async downloadData() {
         if (!this.canDownload) return
   
@@ -139,14 +187,92 @@
   .download-multiple-container {
     width: 100%;
     box-sizing: border-box;
+    position: relative;
   }
-  
-  h2 {
+
+  .download-multiple-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm, 12px);
+    margin-bottom: var(--spacing-md, 16px);
+  }
+
+  .download-multiple-header h2 {
     font-family: 'Inter', sans-serif;
-    margin: 0 0 var(--spacing-md, 16px) 0;
+    margin: 0;
     font-size: 1.1rem;
     font-weight: 500;
     color: #00203399;
+  }
+
+  .download-multiple-help {
+    position: relative;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #00203399;
+    background-color: #e4e9eb;
+    border: 1px solid #b8cad5;
+    user-select: none;
+  }
+
+  .download-multiple-help:active {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .download-multiple-help-tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 20;
+    width: max-content;
+    max-width: min(260px, calc(100vw - 32px));
+    padding: 10px 12px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #333;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #b8cad5;
+    border-radius: 5px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+  }
+
+  .download-multiple-help-list {
+    margin: 0;
+    padding-left: 1.1em;
+    list-style: disc;
+  }
+
+  .download-multiple-help-list li + li {
+    margin-top: 4px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .download-multiple-help:hover .download-multiple-help-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .download-multiple-help--open .download-multiple-help-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
   }
   
   .download-multiple-form {
