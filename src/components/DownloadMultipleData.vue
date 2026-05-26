@@ -50,6 +50,8 @@
   </template>
   
   <script>
+  import { getDownloadFilename } from '../utils/download.js'
+
   export default {
     name: 'DownloadMultipleData',
   
@@ -106,7 +108,8 @@
           if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`)
   
           const blob = await response.blob()
-          const filename = `${this.selectedModel}_${this.dateFrom}_${this.dateTo}.zip`
+          const fallback = `${this.selectedModel}_${this.dateFrom}_${this.dateTo}.zip`
+          const filename = getDownloadFilename(response, fallback)
           this.downloadBlob(blob, filename)
   
           this.success = true

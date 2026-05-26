@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import { getDownloadFilename } from '../utils/download.js'
+
 export default {
   name: 'DownloadNPZ',
   props: {
@@ -81,7 +83,8 @@ export default {
         if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         const npzBlob = await response.blob();
         const dateParam = this.forecastStartDate.split('T')[0];
-        this.downloadBlob(npzBlob, `${dateParam}.npz`);
+        const filename = getDownloadFilename(response, `${dateParam}.npz`);
+        this.downloadBlob(npzBlob, filename);
         this.success = true;
         setTimeout(() => { this.success = false; }, 2000); // Состояние "Готово" на 2 секунды
       } catch (error) {
@@ -104,8 +107,8 @@ export default {
         if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         const ionexBlob = await response.blob();
         const dateParam = this.forecastStartDate.split('T')[0];
-        console.log(dateParam)
-        this.downloadBlob(ionexBlob, `${dateParam}.ionex`);
+        const filename = getDownloadFilename(response, `${dateParam}.ionex`);
+        this.downloadBlob(ionexBlob, filename);
         this.success = true;
         setTimeout(() => { this.success = false; }, 2000);
       } catch (error) {
