@@ -41,6 +41,7 @@
                 <label for="shift-select"><strong>Map:</strong></label>
                 <select
                   id="shift-select"
+                  class="shift-select"
                   v-model.number="selectedShift"
                   :disabled="isPanelLoading"
                 >
@@ -387,6 +388,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+}
+
+.shift-select {
+  cursor: pointer;
 }
 
 .forecast-header h2 {
