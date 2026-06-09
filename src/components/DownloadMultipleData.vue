@@ -33,7 +33,6 @@
             v-model="dateFrom"
             type="date"
             class="date-input"
-            :max="dateTo || undefined"
           />
         </div>
   
@@ -44,7 +43,8 @@
             v-model="dateTo"
             type="date"
             class="date-input"
-            :min="dateFrom || undefined"
+            :min="minDateTo"
+            :max="maxDateTo"
           />
         </div>
   
@@ -75,6 +75,8 @@
   <script>
   import { getDownloadFilename } from '../utils/download.js'
 
+  const MAX_RANGE_DAYS = 31
+
   export default {
     name: 'DownloadMultipleData',
   
@@ -86,26 +88,23 @@
     },
   
     data() {
-      const today = new Date()
-      const fromDefault = new Date(today)
-      fromDefault.setDate(today.getDate() - 30)
-
-      const toYmd = (d) => {
-        const y = d.getFullYear()
-        const m = String(d.getMonth() + 1).padStart(2, '0')
-        const day = String(d.getDate()).padStart(2, '0')
-        return `${y}-${m}-${day}`
-      }
-
       return {
-        dateFrom: toYmd(fromDefault),
-        dateTo: toYmd(today),
+        dateFrom: '',
+        dateTo: '',
         isLoading: false,
         success: false,
         error: null,
         baseUrl: 'http://10.0.6.178:8088',
         helpOpen: false
       }
+    },
+
+    created() {
+      const today = new Date()
+      const fromDefault = new Date(today)
+      fromDefault.setDate(today.getDate() - 30)
+      this.dateFrom = this.formatDate(fromDefault)
+      this.dateTo = this.formatDate(today)
     },
 
     mounted() {
@@ -117,12 +116,57 @@
     },
   
     computed: {
+      minDateTo() {
+        return this.dateFrom || undefined
+      },
+
+      maxDateTo() {
+        if (!this.dateFrom) return undefined
+        return this.shiftDate(this.dateFrom, MAX_RANGE_DAYS)
+      },
+
+      isDateRangeValid() {
+        if (!this.dateFrom || !this.dateTo) return false
+        const from = this.parseDate(this.dateFrom)
+        const to = this.parseDate(this.dateTo)
+        if (!from || !to || to < from) return false
+        return this.diffInDays(from, to) <= MAX_RANGE_DAYS
+      },
+
       canDownload() {
-        return this.selectedModel && this.dateFrom && this.dateTo && !this.isLoading
+        return this.selectedModel && this.isDateRangeValid && !this.isLoading
       }
     },
   
     methods: {
+      parseDate(ymd) {
+        if (!ymd) return null
+        const [year, month, day] = ymd.split('-').map(Number)
+        if (!year || !month || !day) return null
+        return new Date(year, month - 1, day)
+      },
+
+      formatDate(date) {
+        const y = date.getFullYear()
+        const m = String(date.getMonth() + 1).padStart(2, '0')
+        const d = String(date.getDate()).padStart(2, '0')
+        return `${y}-${m}-${d}`
+      },
+
+      shiftDate(ymd, days) {
+        const date = this.parseDate(ymd)
+        if (!date) return undefined
+        date.setDate(date.getDate() + days)
+        return this.formatDate(date)
+      },
+
+      diffInDays(startDate, endDate) {
+        const msPerDay = 24 * 60 * 60 * 1000
+        const startUtc = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())
+        const endUtc = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
+        return Math.floor((endUtc - startUtc) / msPerDay)
+      },
+
       isCoarsePointer() {
         return window.matchMedia('(hover: none) and (pointer: coarse)').matches
       },
@@ -145,7 +189,7 @@
         this.isLoading = true
         this.error = null
         this.success = false
-  
+
         try {
           const url = `${this.baseUrl}/download_data/${encodeURIComponent(this.selectedModel)}?date_from=${this.dateFrom}&date_to=${this.dateTo}`
           const response = await fetch(url, {
