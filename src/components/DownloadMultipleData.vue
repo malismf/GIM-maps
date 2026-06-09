@@ -47,7 +47,11 @@
             :max="maxDateTo"
           />
         </div>
-  
+
+        <div v-if="isRangeTooLong" class="download-multiple-error download-multiple-error--inline">
+          Please select a date range of no more than one month.
+        </div>
+
         <button
           class="download-multiple-btn"
           @click="downloadData"
@@ -131,6 +135,14 @@
         const to = this.parseDate(this.dateTo)
         if (!from || !to || to < from) return false
         return this.diffInDays(from, to) <= MAX_RANGE_DAYS
+      },
+
+      isRangeTooLong() {
+        if (!this.dateFrom || !this.dateTo) return false
+        const from = this.parseDate(this.dateFrom)
+        const to = this.parseDate(this.dateTo)
+        if (!from || !to || to < from) return false
+        return this.diffInDays(from, to) > MAX_RANGE_DAYS
       },
 
       canDownload() {
@@ -427,6 +439,10 @@
     border: 1px solid #f5c6cb;
     border-radius: 5px;
     font-size: var(--font-size-sm, 0.875rem);
+  }
+
+  .download-multiple-error--inline {
+    margin-top: 0;
   }
   
   @media (hover: none) and (pointer: coarse) {
