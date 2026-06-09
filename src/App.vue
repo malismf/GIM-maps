@@ -11,67 +11,79 @@
       />
     </div>
 
-    <div class="right-panel">
-      <div v-if="isPanelLoading" class="right-panel-loading-overlay">
-        <div class="spinner"></div>
-        <p>Loading forecast data...</p>
-      </div>
-
-      <div v-if="error" class="error-display">
-        <p><strong>Error:</strong> {{ error }}</p>
-      </div>
-
-      <template v-if="selectedForecast">
-        <div class="forecast-header">
-          <h2>Forecast View</h2>
-          <div class="forecast-info">
-            <p><strong>Date:</strong> {{ formatDate(selectedForecast.forecast_start_date) }}</p>
-            <p><strong>ID:</strong> {{ selectedForecast.id }}</p>
-
-            <div v-if="forecastSize > 0" class="image-controls">
-              <label for="shift-select"><strong>Map:</strong></label>
-              <select
-                id="shift-select"
-                v-model.number="selectedShift"
-                :disabled="isPanelLoading"
-              >
-                <option
-                  v-for="n in forecastSize"
-                  :key="n - 1"
-                  :value="n - 1"
-                >
-                  {{ n - 1 }} ({{ getShiftTime(n - 1) }})
-                </option>
-              </select>
-            </div>
-
-            <p v-if="forecastSize > 0" class="total-maps-info">
-              <strong>Total:</strong> {{ forecastSize }}
-            </p>
-          </div>
+    <div class="right-panels">
+      <div class="right-panel">
+        <div v-if="isPanelLoading" class="right-panel-loading-overlay">
+          <div class="spinner"></div>
+          <p>Loading forecast data...</p>
         </div>
 
+        <div v-if="error" class="error-display">
+          <p><strong>Error:</strong> {{ error }}</p>
+        </div>
+
+        <template v-if="selectedForecast">
+          <div class="forecast-header">
+            <h2>Forecast View</h2>
+            <div class="forecast-info">
+              <p><strong>Date:</strong> {{ formatDate(selectedForecast.forecast_start_date) }}</p>
+              <p><strong>ID:</strong> {{ selectedForecast.id }}</p>
+
+              <div v-if="forecastSize > 0" class="image-controls">
+                <label for="shift-select"><strong>Map:</strong></label>
+                <select
+                  id="shift-select"
+                  v-model.number="selectedShift"
+                  :disabled="isPanelLoading"
+                >
+                  <option
+                    v-for="n in forecastSize"
+                    :key="n - 1"
+                    :value="n - 1"
+                  >
+                    {{ n - 1 }} ({{ getShiftTime(n - 1) }})
+                  </option>
+                </select>
+              </div>
+
+              <p v-if="forecastSize > 0" class="total-maps-info">
+                <strong>Total:</strong> {{ forecastSize }}
+              </p>
+            </div>
+          </div>
+
+          <div class="viewer-area">
+            <ImageViewer
+              :key="selectedForecast?.id"
+              :forecast-id="selectedForecast?.id"
+              :is-panel-loading="isPanelLoading"
+              :selected-shift="selectedShift"
+              :forecast-size="forecastSize"
+              v-model:selected-shift="selectedShift"
+              @image-loaded="onImageLoaded"
+              @image-error="onImageError"
+            />
+
+            <ImageSlider
+              :forecast-size="forecastSize"
+              v-model:selected-shift="selectedShift"
+              :is-panel-loading="isPanelLoading"
+            />
+
+            <DownloadNPZ
+              :forecast-id="selectedForecast?.id"
+              :forecast-start-date="selectedForecast?.forecast_start_date"
+            />
+          </div>
+        </template>
+
+        <div v-else-if="!isPanelLoading && !error" class="viewer-area no-forecast-selected">
+          <p>Select a model and date to view GIM maps.</p>
+        </div>
+      </div>
+
+      <div v-if="selectedForecast" class="right-panel">
         <div class="viewer-area">
-          <ImageViewer
-            :key="selectedForecast?.id"
-            :forecast-id="selectedForecast?.id"
-            :is-panel-loading="isPanelLoading"
-            :selected-shift="selectedShift"
-            @image-loaded="onImageLoaded"
-            @image-error="onImageError"
-          />
-          
-          <ImageSlider
-            :forecast-size="forecastSize"
-            v-model:selected-shift="selectedShift"
-            :is-panel-loading="isPanelLoading"
-          />
-
-          <DownloadNPZ 
-            :forecast-id="selectedForecast?.id" 
-            :forecast-start-date="selectedForecast?.forecast_start_date"
-          />
-
           <div class="panel-tabs">
             <div
               class="panel-tab"
@@ -91,22 +103,19 @@
           </div>
 
           <Metrics
-            v-if="activePanel === 'metrics' && selectedModel && selectedDate"
-            :selectedModel="selectedModel"
-            :selectedDate="selectedDate"
+            v-if="selectedModel && selectedDate"
+            v-show="activePanel === 'metrics'"
+            :selected-model="selectedModel"
+            :selected-date="selectedDate"
           />
 
-          <div
-            v-else-if="activePanel === 'pointtec' && selectedModel && selectedDate"
+          <PointTEC
+            v-if="selectedModel && selectedDate"
+            v-show="activePanel === 'pointtec'"
             class="pointtec-placeholder"
-          >
-            Point TEC 
-          </div>
+            :forecast-id="selectedForecast?.id"
+          />
         </div>
-      </template>
-
-      <div v-else-if="!isPanelLoading && !error" class="viewer-area no-forecast-selected">
-        <p>Select a model and date to view GIM maps.</p>
       </div>
     </div>
   </div>
@@ -119,6 +128,7 @@ import ImageViewer from './components/ImageViewer.vue';
 import DownloadNPZ from './components/DownloadNPZ.vue';
 import Metrics from './components/Metrics.vue';
 import ImageSlider from './components/ImageSlider.vue';
+import PointTEC from './components/PointTEC.vue';
 
 export default {
   name: 'App',
@@ -128,7 +138,8 @@ export default {
     ImageViewer,
     DownloadNPZ,
     Metrics,
-    ImageSlider
+    ImageSlider,
+    PointTEC
   },
 
   data() {
@@ -213,7 +224,7 @@ export default {
         const response = await fetch(`${this.baseUrl}/get_forecast_size/${forecastId}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const textResponse = await response.text();
-        this.forecastSize = JSON.parse(textResponse) ?? 24 // Возвращает null по умолчанию
+        this.forecastSize = JSON.parse(textResponse) ?? 24
       } catch (e) {
         this.forecastSize = 24;
       }
@@ -296,6 +307,16 @@ body {
   z-index: 1;
 }
 
+.right-panels {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .right-panel {
   width: 100%;
   min-width: 0;
@@ -344,13 +365,6 @@ body {
   background: rgba(0, 123, 255, 0.08);
   color: var(--primary-color, #007bff);
   font-weight: 600;
-}
-
-.pointtec-placeholder {
-  padding: 16px 12px;
-  border: 1px dashed var(--border-color, #ddd);
-  border-radius: 8px;
-  color: var(--text-color, #333);
 }
 
 .forecast-header {
@@ -478,14 +492,20 @@ body {
 
 @media (max-width: 1024px) {
   #app {
-    padding: 0 4px;
+    padding: 0 16px;
     margin-top: 24px;
   }
   .main-layout {
     flex-direction: column;
     gap: var(--spacing-md);
   }
-  .left-panel, .right-panel {
+  .left-panel {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    position: static;
+  }
+  .right-panels, .right-panel {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
@@ -501,6 +521,9 @@ body {
   }
   .main-layout {
     gap: var(--spacing-sm);
+  }
+  .right-panels {
+    gap: 12px;
   }
   .right-panel {
     padding: 12px 2px;
@@ -547,7 +570,7 @@ body {
 /* Improvements for touch devices */
 @media (hover: none) and (pointer: coarse) {
   .image-controls select {
-    min-height: 44px; /* Minimum height for touch */
+    min-height: 44px;
   }
 
   .forecast-info {

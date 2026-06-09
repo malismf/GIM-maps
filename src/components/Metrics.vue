@@ -467,6 +467,10 @@
     background-color: var(--background-color, #f8f9fa);
   }
 
+  h1 {
+    margin-bottom: 16px;
+  }
+
   /* Цветовая индикация качества метрик */
   .score-good {
     background-color: #d4edda !important;
@@ -636,22 +640,6 @@
       min-height: 44px;
       /* display: flex; */
       /* align-items: center; */
-    }
-  }
-
-  /* Анимации для плавного появления */
-  .metrics-container {
-    animation: fadeInUp 0.4s ease-out;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
     }
   }
 
