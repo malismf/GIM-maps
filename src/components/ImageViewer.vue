@@ -1,13 +1,11 @@
 <template>
   <div class="image-viewer">
     <div class="image-container">
-      <!-- Оверлей загрузки, который накладывается поверх контента -->
       <div v-if="isImageLoading && !isPanelLoading" class="loading-overlay">
         <div class="spinner"></div>
         <p>Loading GIM map...</p>
       </div>
 
-      <!-- Изображение и альтернативные состояния -->
       <img
         v-if="currentImage"
         :src="currentImage"
@@ -16,7 +14,7 @@
         :class="{ 'loading': isImageLoading && !isPanelLoading }"
       />
 
-      <div v-else-if="!currentImage" class="no-image">
+      <div v-else class="no-image">
         <p>Image not loaded</p>
       </div>
     </div>
@@ -37,41 +35,91 @@ export default {
       currentImage: null,
       isImageLoading: false,
       imageError: null,
-      baseUrl: 'https://services.simurg.space/gim-tec-forecast'
+      baseUrl: 'https://services.simurg.space/gim-tec-forecast',
+      currentRequestShift: null,
+      debounceTimer: null,
+      currentImageObject: null
     };
   },
   watch: {
     selectedShift: {
       handler(newShift) {
-        this.loadImage(newShift);
+        this.debouncedLoadImage(newShift);
       },
       immediate: true
     }
   },
+  beforeUnmount() {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+    if (this.currentImageObject) {
+      this.currentImageObject.onload = null;
+      this.currentImageObject.onerror = null;
+      this.currentImageObject.src = '';
+    }
+  },
   methods: {
-    async loadImage(shift) {
+    debouncedLoadImage(shift) {
+      if (this.debounceTimer) {
+        clearTimeout(this.debounceTimer);
+      }
+      
+      if (this.currentImageObject) {
+        this.currentImageObject.onload = null;
+        this.currentImageObject.onerror = null;
+        this.currentImageObject.src = '';
+        this.currentImageObject = null;
+      }
+      
+      if (this.currentImage === null && this.currentRequestShift === null) {
+        this.loadImage(shift);
+        return;
+      }
+      
+      this.debounceTimer = setTimeout(() => {
+        this.loadImage(shift);
+        this.debounceTimer = null;
+      }, 300);
+    },
+    
+    loadImage(shift) {
       if (!this.forecastId) return;
+      
+      if (this.currentImageObject) {
+        this.currentImageObject.onload = null;
+        this.currentImageObject.onerror = null;
+        this.currentImageObject.src = '';
+        this.currentImageObject = null;
+      }
+      
+      this.currentRequestShift = shift;
       this.isImageLoading = true;
       this.imageError = null;
-      try {
-        const imageUrl = `${this.baseUrl}/get_forecast_image/${this.forecastId}?shift=${shift}`;
-        const img = new Image();
-        img.onload = () => {
+      
+      const imageUrl = `${this.baseUrl}/get_forecast_image/${this.forecastId}?shift=${shift}`;
+      const img = new Image();
+      this.currentImageObject = img;
+      
+      img.onload = () => {
+        if (this.currentRequestShift === shift && this.currentImageObject === img) {
           this.currentImage = imageUrl;
           this.isImageLoading = false;
           this.$emit('image-loaded');
-        };
-        img.onerror = () => {
+          this.currentImageObject = null;
+        }
+      };
+      
+      img.onerror = () => {
+        if (this.currentRequestShift === shift && this.currentImageObject === img) {
           this.imageError = 'Не удалось загрузить изображение.';
           this.isImageLoading = false;
           this.$emit('image-error', this.imageError);
-        };
-        img.src = `${imageUrl}&t=${Date.now()}`;
-      } catch (error) {
-        this.imageError = 'Произошла критическая ошибка.';
-        this.isImageLoading = false;
-        this.$emit('image-error', this.imageError);
-      }
+          this.currentImageObject = null;
+        }
+      };
+      
+      img.src = `${imageUrl}&t=${Date.now()}`;
     }
   }
 };

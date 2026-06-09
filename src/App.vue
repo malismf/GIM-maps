@@ -60,6 +60,13 @@
             @image-loaded="onImageLoaded"
             @image-error="onImageError"
           />
+          
+          <ImageSlider
+            :forecast-size="forecastSize"
+            v-model:selected-shift="selectedShift"
+            :is-panel-loading="isPanelLoading"
+          />
+
           <DownloadNPZ :forecast-id="selectedForecast?.id"/>
           <Metrics
             v-if="selectedModel && selectedDate"
@@ -82,6 +89,7 @@ import ForecastCalendar from './components/ForecastCalendar.vue'
 import ImageViewer from './components/ImageViewer.vue';
 import DownloadNPZ from './components/DownloadNPZ.vue';
 import Metrics from './components/Metrics.vue';
+import ImageSlider from './components/ImageSlider.vue';
 
 export default {
   name: 'App',
@@ -90,7 +98,8 @@ export default {
     ForecastCalendar,
     ImageViewer,
     DownloadNPZ,
-    Metrics
+    Metrics,
+    ImageSlider
   },
 
   data() {
@@ -125,7 +134,7 @@ export default {
         }
       },
       immediate: true
-    }
+    },
   },
 
   methods: {
@@ -146,6 +155,7 @@ export default {
 
     onImageLoaded() {
       this.isPanelLoading = false;
+      this.error = null; 
     },
 
     onImageError(error) {
@@ -498,4 +508,5 @@ body {
   box-sizing: border-box;
   display: block;
 }
+
 </style>
