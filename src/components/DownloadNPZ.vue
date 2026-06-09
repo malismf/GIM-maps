@@ -48,6 +48,7 @@
 
 <script>
 import { getDownloadFilename } from '../utils/download.js'
+import { API_BASE_URL } from '../config/api.js'
 
 export default {
   name: 'DownloadNPZ',
@@ -65,8 +66,7 @@ export default {
     return {
       error: null,
       success: false,
-      isLoading: false,
-      baseUrl: 'http://10.0.6.178:8088'
+      isLoading: false
     }
   },
   methods: {
@@ -76,7 +76,7 @@ export default {
       this.success = false;
       this.isLoading = true;
       try {
-        const response = await fetch(`${this.baseUrl}/get_forecast_object/${this.forecastId}`, {
+        const response = await fetch(`${API_BASE_URL}/get_forecast_object/${this.forecastId}`, {
           method: 'GET',
           headers: { 'Accept': 'application/zip, application/octet-stream' }
         });
@@ -100,7 +100,7 @@ export default {
       this.success = false;
       this.isLoading = true;
       try {
-        const response = await fetch(`${this.baseUrl}/get_ionex_file/${this.forecastId}`, {
+        const response = await fetch(`${API_BASE_URL}/get_ionex_file/${this.forecastId}`, {
           method: 'GET',
           headers: { 'Accept': 'application/ionex, application/octet-stream, text/plain' }
         });

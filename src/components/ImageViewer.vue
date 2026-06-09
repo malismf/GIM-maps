@@ -42,6 +42,8 @@
 </template>
 
 <script>
+import { API_BASE_URL } from '../config/api.js'
+
 export default {
   name: 'ImageViewer',
   props: {
@@ -56,7 +58,6 @@ export default {
       currentImage: null,
       isImageLoading: false,
       imageError: null,
-      baseUrl: 'https://services.simurg.space/gim-tec-forecast',
       currentRequestShift: null,
       debounceTimer: null,
       currentImageObject: null,
@@ -131,7 +132,7 @@ export default {
       this.isImageLoading = true;
       this.imageError = null;
 
-      const imageUrl = `${this.baseUrl}/get_forecast_image/${this.forecastId}?shift=${shift}`;
+      const imageUrl = `${API_BASE_URL}/get_forecast_image/${this.forecastId}?shift=${shift}`;
       const img = new Image();
       this.currentImageObject = img;
 

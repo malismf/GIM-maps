@@ -15,6 +15,7 @@
 
 <script>
 import axios from 'axios'
+import { API_BASE_URL } from '../config/api.js'
 
 export default {
   name: 'ModelList',
@@ -22,7 +23,6 @@ export default {
 
   data() {
     return {
-      baseUrl: 'http://10.0.6.178:8088',
       models: [],
       selectedModel: '',
       forecasts: []
@@ -33,7 +33,7 @@ export default {
     // загружает список моделей
     async loadModels() {
       try {
-        const res = await axios.get(`${this.baseUrl}/models`);
+        const res = await axios.get(`${API_BASE_URL}/models`);
         this.models = Array.isArray(res.data) ? res.data : (res.data.models || []);
 
         // Set default model to "GIMini-LSTM-F10.7-7" if available, otherwise fallback to first model
@@ -57,7 +57,7 @@ export default {
       if (!modelCode) return;
       this.forecasts = [];
       try {
-        const res = await axios.get(`${this.baseUrl}/get_all_forecasts/${modelCode}`);
+        const res = await axios.get(`${API_BASE_URL}/get_all_forecasts/${modelCode}`);
         this.forecasts = Array.isArray(res.data) ? res.data : [];
         this.$emit('selected-model', modelCode);
         this.$emit('model-forecasts', this.forecasts);

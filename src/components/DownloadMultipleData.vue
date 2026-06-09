@@ -78,6 +78,7 @@
   
   <script>
   import { getDownloadFilename } from '../utils/download.js'
+  import { API_BASE_URL } from '../config/api.js'
 
   const MAX_RANGE_DAYS = 31
 
@@ -98,7 +99,6 @@
         isLoading: false,
         success: false,
         error: null,
-        baseUrl: 'http://10.0.6.178:8088',
         helpOpen: false
       }
     },
@@ -203,7 +203,7 @@
         this.success = false
 
         try {
-          const url = `${this.baseUrl}/download_data/${encodeURIComponent(this.selectedModel)}?date_from=${this.dateFrom}&date_to=${this.dateTo}`
+          const url = `${API_BASE_URL}/download_data/${encodeURIComponent(this.selectedModel)}?date_from=${this.dateFrom}&date_to=${this.dateTo}`
           const response = await fetch(url, {
             method: 'GET',
             headers: { 'Accept': 'application/octet-stream, application/zip, */*' }

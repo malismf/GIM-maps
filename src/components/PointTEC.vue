@@ -59,6 +59,7 @@
   
   <script>
   import { Chart, registerables } from 'chart.js'
+  import { API_BASE_URL } from '../config/api.js'
   import 'chartjs-adapter-date-fns'
   
   Chart.register(...registerables)
@@ -82,8 +83,7 @@
         chartData: [],
         lastFetchedLat: null,
         lastFetchedLon: null,
-        chart: null,
-        baseUrl: 'http://10.0.6.178:8088'
+        chart: null
       }
     },
   
@@ -145,7 +145,7 @@
         this.destroyChart()
   
         try {
-          const url = `${this.baseUrl}/get_tec_for_geo_point/${this.forecastId}/${this.latitude}/${this.longitude}`
+          const url = `${API_BASE_URL}/get_tec_for_geo_point/${this.forecastId}/${this.latitude}/${this.longitude}`
           const response = await fetch(url)
           if (!response.ok) throw new Error(`HTTP error: ${response.status}`)
           const data = await response.json()

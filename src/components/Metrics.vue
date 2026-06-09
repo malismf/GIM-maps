@@ -80,6 +80,7 @@
 
   <script>
   import { Chart, registerables } from 'chart.js'
+  import { API_BASE_URL } from '../config/api.js'
   import 'chartjs-adapter-date-fns'
 
   Chart.register(...registerables)
@@ -96,7 +97,6 @@
         filteredMetrics: [],
         isLoading: false,
         error: null,
-        baseUrl: 'https://services.simurg.space/gim-tec-forecast',
         charts: {
           rmse: null,
           mape: null,
@@ -165,7 +165,7 @@
           this.destroyCharts();
           return;
         }
-        const url = `${this.baseUrl}/get_metrics/${this.selectedModel}?date_from=${this.startDate}&date_to=${this.endDate}`;
+        const url = `${API_BASE_URL}/get_metrics/${this.selectedModel}?date_from=${this.startDate}&date_to=${this.endDate}`;
         this.isLoading = true;
         this.error = null;
         try {

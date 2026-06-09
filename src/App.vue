@@ -139,6 +139,7 @@ import Metrics from './components/Metrics.vue';
 import ImageSlider from './components/ImageSlider.vue';
 import PointTEC from './components/PointTEC.vue';
 import DownloadMultipleData from './components/DownloadMultipleData.vue';
+import { API_BASE_URL } from './config/api.js';
 
 export default {
   name: 'App',
@@ -163,7 +164,6 @@ export default {
       isPanelLoading: false,
       error: null,
       currentShiftInfo: null,
-      baseUrl: 'http://10.0.6.178:8088',
       forecastSize: 24,
       selectedShift: 0,
       activePanel: 'metrics'
@@ -232,7 +232,7 @@ export default {
 
     async fetchForecastSize(forecastId) {
       try {
-        const response = await fetch(`${this.baseUrl}/get_forecast_size/${forecastId}`);
+        const response = await fetch(`${API_BASE_URL}/get_forecast_size/${forecastId}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const textResponse = await response.text();
         this.forecastSize = JSON.parse(textResponse) ?? 24
