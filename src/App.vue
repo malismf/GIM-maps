@@ -67,12 +67,41 @@
             :is-panel-loading="isPanelLoading"
           />
 
-          <DownloadNPZ :forecast-id="selectedForecast?.id"/>
+          <DownloadNPZ 
+            :forecast-id="selectedForecast?.id" 
+            :forecast-start-date="selectedForecast?.forecast_start_date"
+          />
+
+          <div class="panel-tabs">
+            <div
+              class="panel-tab"
+              :class="{ 'panel-tab--active': activePanel === 'metrics' }"
+              @click="activePanel = 'metrics'"
+            >
+              Metrics
+            </div>
+
+            <div
+              class="panel-tab"
+              :class="{ 'panel-tab--active': activePanel === 'pointtec' }"
+              @click="activePanel = 'pointtec'"
+            >
+              Point TEC
+            </div>
+          </div>
+
           <Metrics
-            v-if="selectedModel && selectedDate"
+            v-if="activePanel === 'metrics' && selectedModel && selectedDate"
             :selectedModel="selectedModel"
             :selectedDate="selectedDate"
           />
+
+          <div
+            v-else-if="activePanel === 'pointtec' && selectedModel && selectedDate"
+            class="pointtec-placeholder"
+          >
+            Point TEC 
+          </div>
         </div>
       </template>
 
@@ -114,7 +143,8 @@ export default {
       currentShiftInfo: null,
       baseUrl: 'http://10.0.6.178:8088',
       forecastSize: 24,
-      selectedShift: 0
+      selectedShift: 0,
+      activePanel: 'metrics'
     }
   },
 
@@ -270,7 +300,7 @@ body {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  padding: 20px 12px;
+  padding: 20px 25px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -291,6 +321,36 @@ body {
   gap: 16px;
   margin: 0;
   padding: 0;
+}
+
+.panel-tabs {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.panel-tab {
+  cursor: pointer;
+  user-select: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #ddd);
+  background: #fff;
+  color: var(--text-color, #333);
+}
+
+.panel-tab--active {
+  border-color: var(--primary-color, #007bff);
+  background: rgba(0, 123, 255, 0.08);
+  color: var(--primary-color, #007bff);
+  font-weight: 600;
+}
+
+.pointtec-placeholder {
+  padding: 16px 12px;
+  border: 1px dashed var(--border-color, #ddd);
+  border-radius: 8px;
+  color: var(--text-color, #333);
 }
 
 .forecast-header {
@@ -497,7 +557,6 @@ body {
 
 .download-npz {
   width: 100%;
-  margin: 16px 0 0 0;
   box-sizing: border-box;
   padding: 0;
   display: block;

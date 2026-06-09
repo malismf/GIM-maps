@@ -132,16 +132,31 @@ export default {
             const dateKey = date.getFullYear() + '-' +
                            String(date.getMonth() + 1).padStart(2, '0') + '-' +
                            String(date.getDate()).padStart(2, '0');
-            if (dates.has(dateKey)) {
-              console.log(dateKey);
-            }
             dates.add(dateKey);
-            
           }
         }
       });
       return dates;
     },
+
+    previousDates() {
+      if (!this.availableDates || this.availableDates.size === 0) {
+        return new Set();
+      }
+      const prevDates = new Set();
+      const todayNorm = new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate());
+
+      this.availableDates.forEach(dateKey => {
+        const [year, month, day] = dateKey.split('-').map(Number);
+        const cellNorm = new Date(year, month - 1, day);
+        if (cellNorm < todayNorm) {
+          prevDates.add(dateKey);
+        }
+      });
+
+      return prevDates;
+    },
+
     canGoPrev() {
       if (!this.minForecastDate) return false;
       const firstDayOfCurrentMonth = new Date(this.currentYear, this.currentMonth, 1);
@@ -244,7 +259,10 @@ export default {
     },
 
     isPreviousForecast(day) {
-      // TODO: добавить обработку для предыдущих прогнозов
+      const dateKey = this.currentYear + '-' +
+                      String(this.currentMonth + 1).padStart(2, '0') + '-' +
+                      String(day).padStart(2, '0');
+      return this.previousDates.has(dateKey);
     },
 
     getClassesForDay(day) {
@@ -253,6 +271,7 @@ export default {
         {
           'selected': this.isSelected(day),
           'available': this.isDateAvailable(day),
+          'previous-forecast': this.isPreviousForecast(day),
           'clickable': this.isDateAvailable(day)
         }
       ];
@@ -260,10 +279,7 @@ export default {
 
     findForecastForDate(date) {
       return this.forecasts.find(forecast => {
-        const forecastDate = new Date(
-          forecast.forecast_start_date || forecast.forecast_end_date ||
-          forecast.date || forecast.created_at || forecast.timestamp
-        );
+        const forecastDate = new Date(forecast.forecast_start_date || forecast.forecast_end_date);
         return forecastDate.toDateString() === date.toDateString();
       });
     },
@@ -351,14 +367,12 @@ export default {
       const triggerRect = trigger.getBoundingClientRect();
       const dropdownBottomPosition = triggerRect.bottom;
       const viewportHeight = window.innerHeight;
-      const availableHeight = viewportHeight - dropdownBottomPosition - 8; // 8px для отступа от низа
+      const availableHeight = viewportHeight - dropdownBottomPosition - 8; 
       
-      // Устанавливаем max-height для dropdown
-      const dropdownHeight = Math.max(availableHeight, 200); // минимум 200px
+      const dropdownHeight = Math.max(availableHeight, 200); 
       this.dropdownMaxHeight = `${dropdownHeight}px`;
       
-      // Устанавливаем max-height для колонок (отнимаем высоту заголовков и padding)
-      const headerHeight = 30; // примерная высота заголовка + padding
+      const headerHeight = 30;
       const columnsHeight = dropdownHeight - headerHeight;
       this.columnsMaxHeight = `${Math.max(columnsHeight, 150)}px`;
     },
@@ -676,7 +690,38 @@ export default {
 }
 
 .calendar-day.previous-forecast {
-  background-color: blue;
+  background-color: #3B82F6;
+  color: #ffffff;
+  font-weight: 600;
+  border-color: #3B82F6;
+}
+
+.calendar-day.previous-forecast:not(.selected):hover {
+  background-color: #60A5FA;
+  border-color: #60A5FA;
+  transform: scale(1.05);
+}
+
+.calendar-day.selected.previous-forecast {
+  background-color: #3B82F6;
+  color: #3B82F6;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+  border-color: #3B82F6;
+}
+
+.calendar-day.selected.previous-forecast::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  background-color: #fdf6c3;
+  border-radius: 50%;
+  z-index: -1;
 }
 
 .blank-day {
@@ -724,6 +769,11 @@ export default {
 
   .calendar-day {
     font-size: var(--font-size-xs, 0.75rem);
+  }
+
+  .calendar-day.selected.previous-forecast::before {
+    width: 32px;
+    height: 32px;
   }
 }
 
@@ -780,6 +830,11 @@ export default {
     width: 32px;
     height: 32px;
   }
+
+  .calendar-day.selected.previous-forecast::before {
+    width: 32px;
+    height: 32px;
+  }
 }
 
 /* Адаптивность для очень маленьких экранов */
@@ -827,6 +882,11 @@ export default {
   }
 
   .calendar-day.selected.available::before {
+    width: 24px;
+    height: 24px;
+  }
+
+  .calendar-day.selected.previous-forecast::before {
     width: 24px;
     height: 24px;
   }
