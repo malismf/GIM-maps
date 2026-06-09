@@ -105,10 +105,10 @@
 
     created() {
       const today = new Date()
-      const toDefault = new Date(today)
-      toDefault.setDate(today.getDate() + 30)
-      this.dateFrom = this.formatDate(today)
-      this.dateTo = this.formatDate(toDefault)
+      const fromDefault = new Date(today)
+      fromDefault.setDate(today.getDate() - 31)
+      this.dateFrom = this.formatDate(fromDefault)
+      this.dateTo = this.formatDate(today)
     },
 
     mounted() {
