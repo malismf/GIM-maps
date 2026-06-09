@@ -77,7 +77,6 @@ export default {
       minForecastDate: null,
       maxForecastDate: null,
 
-      // кастомный дропдаун для месяца/года
       dropdownOpen: false,
       hoverYear: null,
       dropdownMaxHeight: 'auto',
@@ -123,11 +122,9 @@ export default {
       if (!this.forecasts || !Array.isArray(this.forecasts)) {
         return new Set();
       }
-
       const dates = new Set();
       this.forecasts.forEach(forecast => {
-        const dateStr = forecast.forecast_start_date || forecast.forecast_end_date ||
-                       forecast.date || forecast.created_at || forecast.timestamp;
+        const dateStr = forecast.forecast_start_date || forecast.forecast_end_date;
 
         if (dateStr) {
           const date = new Date(dateStr);
@@ -135,7 +132,11 @@ export default {
             const dateKey = date.getFullYear() + '-' +
                            String(date.getMonth() + 1).padStart(2, '0') + '-' +
                            String(date.getDate()).padStart(2, '0');
+            if (dates.has(dateKey)) {
+              console.log(dateKey);
+            }
             dates.add(dateKey);
+            
           }
         }
       });
@@ -242,6 +243,10 @@ export default {
       return this.availableDates.has(dateKey);
     },
 
+    isPreviousForecast(day) {
+      // TODO: добавить обработку для предыдущих прогнозов
+    },
+
     getClassesForDay(day) {
       return [
         'calendar-day',
@@ -263,37 +268,24 @@ export default {
       });
     },
 
-    // автоматически находит и выбирает самый первый доступный прогноз
-    selectFirstAvailableForecast() {
-      if (this.forecasts && this.forecasts.length > 0) {
-        const sortedForecasts = [...this.forecasts].sort((a, b) => {
-          const dateA = new Date(
-            a.forecast_start_date || a.forecast_end_date ||
-            a.date || a.created_at || a.timestamp
-          );
-          const dateB = new Date(
-            b.forecast_start_date || b.forecast_end_date ||
-            b.date || b.created_at || b.timestamp
-          );
-          return dateA - dateB;
+    selectTodayForecast() {
+      if  (this.forecasts && this.forecasts.length > 0) {
+        // находим прогноз за сегодняшний день
+        const todayForecast = this.forecasts.find(forecast => {
+            const forecastDate = new Date(forecast.forecast_start_date || forecast.forecast_end_date);
+            return forecastDate.toDateString() === this.today.toDateString();
         });
 
-        const firstForecast = sortedForecasts[0];
-        const firstDate = new Date(
-          firstForecast.forecast_start_date || firstForecast.forecast_end_date ||
-          firstForecast.date || firstForecast.created_at || firstForecast.timestamp
-        );
-
-        if (!isNaN(firstDate.getTime())) {
-          this.selectedDate = firstDate;
-
-          this.currentMonth = firstDate.getMonth();
-          this.currentYear = firstDate.getFullYear();
-
-          this.$emit('forecast-selected', firstForecast);
+        if (todayForecast) {
+          this.selectedDate = new Date(todayForecast.forecast_start_date || todayForecast.forecast_end_date);
+          this.currentMonth = this.selectedDate.getMonth();
+          this.currentYear = this.selectedDate.getFullYear();
+          this.$emit('forecast-selected', todayForecast);
         }
       }
+
     },
+
     updateMinMaxDates() {
       if (!this.forecasts || this.forecasts.length === 0) {
         this.minForecastDate = null;
@@ -320,10 +312,8 @@ export default {
 
     selectYearFromDropdown(year) {
       this.hoverYear = year;
-
       // сразу переключаем текущий год
       this.currentYear = year;
-
       // если текущий месяц недоступен для этого года — выбираем первый доступный
       const months = this.availableMonthsByYear[year] || [];
       if (months.length > 0 && !months.includes(this.currentMonth)) {
@@ -381,7 +371,7 @@ export default {
       handler(newForecasts) {
         this.updateMinMaxDates();
         if (newForecasts && newForecasts.length > 0) {
-          this.selectFirstAvailableForecast();
+          this.selectTodayForecast();
         } else {
           this.selectedDate = null;
         }
@@ -683,6 +673,10 @@ export default {
   background-color: #fdf6c3;
   border-radius: 50%;
   z-index: -1;
+}
+
+.calendar-day.previous-forecast {
+  background-color: blue;
 }
 
 .blank-day {

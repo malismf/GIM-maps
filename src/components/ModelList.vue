@@ -22,6 +22,7 @@ export default {
 
   data() {
     return {
+      baseUrl: 'http://10.0.6.178:8088',
       models: [],
       selectedModel: '',
       forecasts: []
@@ -29,9 +30,10 @@ export default {
   },
 
   methods: {
+    // загружает список моделей
     async loadModels() {
       try {
-        const res = await axios.get('https://services.simurg.space/gim-tec-forecast/models');
+        const res = await axios.get(`${this.baseUrl}/models`);
         this.models = Array.isArray(res.data) ? res.data : (res.data.models || []);
 
         // Set default model to "GIMini-LSTM-F10.7-7" if available, otherwise fallback to first model
@@ -49,11 +51,13 @@ export default {
         this.selectedModel = '';
       }
     },
+
+    // обновляет список прогнозов для выбранной модели
     async refresh_forecasts(modelCode) {
       if (!modelCode) return;
       this.forecasts = [];
       try {
-        const res = await axios.get(`https://services.simurg.space/gim-tec-forecast/get_forecasts/${modelCode}`);
+        const res = await axios.get(`${this.baseUrl}/get_all_forecasts/${modelCode}`);
         this.forecasts = Array.isArray(res.data) ? res.data : [];
         this.$emit('selected-model', modelCode);
         this.$emit('model-forecasts', this.forecasts);
