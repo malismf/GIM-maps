@@ -1,14 +1,22 @@
 <template>
   <div id="app">
     <div class="left-panel">
-      <ModelList
-        @selected-model="onModelSelected"
-        @model-forecasts="onModelForecasts"
-      />
-      <ForecastCalendar
-        :forecasts="forecasts"
-        @forecast-selected="onForecastSelected"
-      />
+      <div class="left-panel-block">
+        <ModelList
+          @selected-model="onModelSelected"
+          @model-forecasts="onModelForecasts"
+        />
+        <ForecastCalendar
+          :forecasts="forecasts"
+          @forecast-selected="onForecastSelected"
+        />
+      </div>
+
+      <div class="left-panel-block">
+        <DownloadMultipleData
+          :selected-model="selectedModel"
+        />
+      </div>
     </div>
 
     <div class="right-panels">
@@ -33,6 +41,7 @@
                 <label for="shift-select"><strong>Map:</strong></label>
                 <select
                   id="shift-select"
+                  class="shift-select"
                   v-model.number="selectedShift"
                   :disabled="isPanelLoading"
                 >
@@ -129,6 +138,7 @@ import DownloadNPZ from './components/DownloadNPZ.vue';
 import Metrics from './components/Metrics.vue';
 import ImageSlider from './components/ImageSlider.vue';
 import PointTEC from './components/PointTEC.vue';
+import DownloadMultipleData from './components/DownloadMultipleData.vue';
 
 export default {
   name: 'App',
@@ -139,7 +149,8 @@ export default {
     DownloadNPZ,
     Metrics,
     ImageSlider,
-    PointTEC
+    PointTEC,
+    DownloadMultipleData
   },
 
   data() {
@@ -280,31 +291,35 @@ body {
   margin: 40px auto 0 auto;
   padding: 0 16px;
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   min-height: 100vh;
   background: #f5f5f5;
-}
-
-.main-layout {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: 20px;
   align-items: flex-start;
-  width: 100%;
-  box-sizing: border-box;
-  flex-direction: row;
 }
 
 .left-panel {
   flex: 1 1 320px;
-  height: fit-content;
   min-width: 0;
   width: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  gap: 20px;
+}
+
+.left-panel-block {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px 25px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
   gap: var(--spacing-lg);
-  position: relative;
-  z-index: 1;
 }
 
 .right-panels {
@@ -373,6 +388,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+}
+
+.shift-select {
+  cursor: pointer;
 }
 
 .forecast-header h2 {
@@ -492,41 +511,29 @@ body {
 
 @media (max-width: 1024px) {
   #app {
+    flex-direction: column;
     padding: 0 16px;
     margin-top: 24px;
   }
-  .main-layout {
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-  .left-panel {
+  .left-panel,
+  .right-panels {
     width: 100%;
     min-width: 0;
-    box-sizing: border-box;
-    position: static;
-  }
-  .right-panels, .right-panel {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    position: static;
-    padding: 0;
   }
 }
 
 @media (max-width: 768px) {
   #app {
-    padding: 0 2px;
+    padding: 0 8px;
     margin-top: 12px;
+    gap: 12px;
   }
-  .main-layout {
-    gap: var(--spacing-sm);
+  .left-panel-block,
+  .right-panel {
+    padding: 16px;
   }
   .right-panels {
     gap: 12px;
-  }
-  .right-panel {
-    padding: 12px 2px;
   }
 }
 
@@ -548,7 +555,6 @@ body {
   text-align: left;
 }
 
-/* Styles for components */
 :deep(.download-npz),
 :deep(.download-npz *) {
   max-width: 600px !important;
@@ -567,12 +573,10 @@ body {
   box-sizing: border-box;
 }
 
-/* Improvements for touch devices */
 @media (hover: none) and (pointer: coarse) {
   .image-controls select {
     min-height: 44px;
   }
-
   .forecast-info {
     gap: var(--spacing-md);
   }
@@ -590,5 +594,4 @@ body {
   box-sizing: border-box;
   display: block;
 }
-
 </style>

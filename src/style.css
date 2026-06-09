@@ -223,33 +223,21 @@ select:focus, button:focus, input:focus, textarea:focus {
     display: none;
   }
 }
-
 #app {
-  display: flex;
-  gap: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.left-panel, .right-panel {
-  background-color: var(--panel-background);
-  border-radius: var(--border-radius);
-  padding: var(--spacing-lg);
-  border: 1px solid var(--border-color);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .left-panel {
-  flex: 1;
-  min-width: 350px;
+  min-width: 0;
   max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
 }
 
-.right-panel {
-  flex: 2;
-  position: relative;
+@media (max-width: 1024px) {
+  .left-panel {
+    max-width: none;
+  }
 }
 
 h2 {
@@ -275,13 +263,3 @@ h2 {
   backdrop-filter: blur(3px);
   border-radius: var(--border-radius-lg);
 }
-
-@media (max-width: 900px) {
-  #app {
-    flex-direction: column;
-  }
-  .left-panel {
-    max-width: 100%;
-  }
-}
-
