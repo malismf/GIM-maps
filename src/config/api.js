@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'http://10.0.6.178:8088'
+export const API_BASE_URL = 'https://services.simurg.space/gim-tec-forecast'
