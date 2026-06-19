@@ -308,9 +308,39 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .image-viewer {
+    position: relative;
+    gap: 0;
+  }
+
   .image-container {
-    max-width: 100%;
+    width: calc(100% + 32px);
+    max-width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
+    flex-shrink: 0;
     aspect-ratio: 1;
+  }
+
+  .nav-btn {
+    position: absolute;
+    top: calc(50% - 26px);
+    z-index: 5;
+    width: 36px;
+    height: 52px;
+  }
+
+  .nav-btn:first-child {
+    left: 8px;
+  }
+
+  .nav-btn:last-child {
+    right: 8px;
+  }
+
+  .nav-btn--hidden {
+    opacity: 0.9;
+    pointer-events: auto;
   }
 
   .loading-overlay p {
@@ -327,16 +357,25 @@ export default {
     height: 28px;
     margin-bottom: var(--spacing-xs, 8px);
   }
-
-  .nav-btn {
-    width: 36px;
-    height: 36px;
-  }
 }
 
 @media (max-width: 480px) {
   .image-container {
     border-radius: var(--border-radius, 6px);
+  }
+
+  .nav-btn {
+    width: 34px;
+    height: 48px;
+    top: calc(50% - 24px);
+  }
+
+  .nav-btn:first-child {
+    left: 6px;
+  }
+
+  .nav-btn:last-child {
+    right: 6px;
   }
 
   .loading-overlay p {
