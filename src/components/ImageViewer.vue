@@ -1,18 +1,18 @@
 <template>
   <div
     class="image-viewer"
-    @mouseenter="isHovered = true"
-    @mouseleave="isHovered = false"
+    @pointerenter="onPointerEnter"
+    @pointerleave="onPointerLeave"
   >
     <button
       v-if="forecastSize > 1 && !isPanelLoading"
       class="nav-btn"
-      :class="{ 'nav-btn--hidden': !isHovered }"
+      :class="{ 'nav-btn--hidden': !isHovered && !controlsVisible }"
       :disabled="selectedShift === 0"
       @click="prev"
     ><img src="../assets/icons/arrow-left.svg"></button>
 
-    <div class="image-container">
+    <div class="image-container" @click="showControls">
       <div v-if="isImageLoading && !isPanelLoading" class="loading-overlay">
         <div class="spinner"></div>
         <p>Loading GIM map...</p>
@@ -34,7 +34,7 @@
     <button
       v-if="forecastSize > 1 && !isPanelLoading"
       class="nav-btn"
-      :class="{ 'nav-btn--hidden': !isHovered }"
+      :class="{ 'nav-btn--hidden': !isHovered && !controlsVisible }"
       :disabled="selectedShift === forecastSize - 1"
       @click="next"
     ><img src="../assets/icons/arrow-right.svg"></button>
@@ -61,7 +61,9 @@ export default {
       currentRequestShift: null,
       debounceTimer: null,
       currentImageObject: null,
-      isHovered: false
+      isHovered: false,
+      controlsVisible: false,
+      controlsTimer: null
     };
   },
   watch: {
@@ -76,6 +78,9 @@ export default {
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
     }
+    if (this.controlsTimer) {
+      clearTimeout(this.controlsTimer);
+    }
     if (this.currentImageObject) {
       this.currentImageObject.onload = null;
       this.currentImageObject.onerror = null;
@@ -83,16 +88,41 @@ export default {
     }
   },
   methods: {
+    onPointerEnter(event) {
+      if (event.pointerType === 'mouse') {
+        this.isHovered = true;
+      }
+    },
+
+    onPointerLeave(event) {
+      if (event.pointerType === 'mouse') {
+        this.isHovered = false;
+      }
+    },
+
+    showControls() {
+      this.controlsVisible = true;
+      if (this.controlsTimer) {
+        clearTimeout(this.controlsTimer);
+      }
+      this.controlsTimer = setTimeout(() => {
+        this.controlsVisible = false;
+        this.controlsTimer = null;
+      }, 2500);
+    },
+
     prev() {
       if (this.selectedShift > 0) {
         this.$emit('update:selectedShift', this.selectedShift - 1);
       }
+      this.showControls();
     },
 
     next() {
       if (this.selectedShift < this.forecastSize - 1) {
         this.$emit('update:selectedShift', this.selectedShift + 1);
       }
+      this.showControls();
     },
 
     debouncedLoadImage(shift) {
@@ -338,11 +368,6 @@ export default {
     right: 8px;
   }
 
-  .nav-btn--hidden {
-    opacity: 0.9;
-    pointer-events: auto;
-  }
-
   .loading-overlay p {
     font-size: var(--font-size-sm, 0.875rem);
   }
@@ -401,11 +426,6 @@ export default {
 
   .gim-image {
     cursor: pointer;
-  }
-
-  .nav-btn--hidden {
-    opacity: 1;
-    pointer-events: auto;
   }
 }
 
