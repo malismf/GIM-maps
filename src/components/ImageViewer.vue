@@ -12,7 +12,7 @@
       @click="prev"
     ><img src="../assets/icons/arrow-left.svg"></button>
 
-    <div class="image-container" @click="showControls">
+    <div class="image-container" @click="toggleControls">
       <div v-if="isImageLoading && !isPanelLoading" class="loading-overlay">
         <div class="spinner"></div>
         <p>Loading GIM map...</p>
@@ -62,8 +62,7 @@ export default {
       debounceTimer: null,
       currentImageObject: null,
       isHovered: false,
-      controlsVisible: false,
-      controlsTimer: null
+      controlsVisible: true
     };
   },
   watch: {
@@ -77,9 +76,6 @@ export default {
   beforeUnmount() {
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
-    }
-    if (this.controlsTimer) {
-      clearTimeout(this.controlsTimer);
     }
     if (this.currentImageObject) {
       this.currentImageObject.onload = null;
@@ -97,32 +93,24 @@ export default {
     onPointerLeave(event) {
       if (event.pointerType === 'mouse') {
         this.isHovered = false;
+        this.controlsVisible = false;
       }
     },
 
-    showControls() {
-      this.controlsVisible = true;
-      if (this.controlsTimer) {
-        clearTimeout(this.controlsTimer);
-      }
-      this.controlsTimer = setTimeout(() => {
-        this.controlsVisible = false;
-        this.controlsTimer = null;
-      }, 2500);
+    toggleControls() {
+      this.controlsVisible = !this.controlsVisible;
     },
 
     prev() {
       if (this.selectedShift > 0) {
         this.$emit('update:selectedShift', this.selectedShift - 1);
       }
-      this.showControls();
     },
 
     next() {
       if (this.selectedShift < this.forecastSize - 1) {
         this.$emit('update:selectedShift', this.selectedShift + 1);
       }
-      this.showControls();
     },
 
     debouncedLoadImage(shift) {
