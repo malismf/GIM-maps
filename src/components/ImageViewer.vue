@@ -180,15 +180,19 @@ export default {
 
 <style scoped>
 .image-viewer {
+  position: relative;
   width: 100%;
+  max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  max-width: 100%;
 }
 
 .nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
   flex-shrink: 0;
   width: 40px;
   height: 60px;
@@ -218,7 +222,7 @@ export default {
 
 .nav-btn:active {
   background-color: var(--primary-color);
-  transform: none;
+  transform: translateY(-50%);
   filter: none;
 }
 
@@ -232,10 +236,18 @@ export default {
   cursor: default;
 }
 
+.nav-btn:first-child {
+  left: 8px;
+}
+
+.nav-btn:last-child {
+  right: 8px;
+}
+
 .image-container {
   position: relative;
-  width: 100%;
-  max-width: 600px;
+  width: var(--gim-image-size, 600px);
+  max-width: 100%;
   aspect-ratio: 1;
   display: flex;
   justify-content: center;
@@ -306,10 +318,6 @@ export default {
 }
 
 @media (max-width: 1024px) {
-  .image-container {
-    max-width: 500px;
-  }
-
   .loading-overlay p {
     font-size: var(--font-size-sm, 0.875rem);
   }
@@ -326,24 +334,12 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .image-viewer {
-    position: relative;
-    gap: 0;
-  }
-
   .image-container {
-    width: calc(100% + 32px);
-    max-width: calc(100% + 32px);
-    margin-left: -16px;
-    margin-right: -16px;
-    flex-shrink: 0;
-    aspect-ratio: 1;
+    width: 100%;
+    max-width: 100%;
   }
 
   .nav-btn {
-    position: absolute;
-    top: calc(50% - 26px);
-    z-index: 5;
     width: 36px;
     height: 52px;
   }
@@ -380,7 +376,6 @@ export default {
   .nav-btn {
     width: 34px;
     height: 48px;
-    top: calc(50% - 24px);
   }
 
   .nav-btn:first-child {
