@@ -246,7 +246,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 
 :root {
   --primary-color: #007bff;
@@ -289,8 +289,7 @@ body {
   --panel-padding: 20px;
   max-width: 1200px;
   margin: 0;
-  padding: var(--app-padding);
-  width: 100%;
+  width: 100vw;
   min-width: 0;
   box-sizing: border-box;
   min-height: 100vh;
