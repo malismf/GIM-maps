@@ -19,7 +19,6 @@
       </div>
     </div>
 
-    <div class="right-panels">
       <div class="right-panel">
         <div v-if="isPanelLoading" class="right-panel-loading-overlay">
           <div class="spinner"></div>
@@ -41,7 +40,6 @@
                 <label for="shift-select"><strong>Map:</strong></label>
                 <select
                   id="shift-select"
-                  class="shift-select"
                   v-model.number="selectedShift"
                   :disabled="isPanelLoading"
                 >
@@ -83,16 +81,7 @@
               :forecast-id="selectedForecast?.id"
               :forecast-start-date="selectedForecast?.forecast_start_date"
             />
-          </div>
-        </template>
 
-        <div v-else-if="!isPanelLoading && !error" class="viewer-area no-forecast-selected">
-          <p>Select a model and date to view GIM maps.</p>
-        </div>
-      </div>
-
-      <div v-if="selectedForecast" class="right-panel">
-        <div class="viewer-area">
           <div class="panel-tabs">
             <div
               class="panel-tab"
@@ -112,25 +101,28 @@
           </div>
 
           <Metrics
-            v-if="selectedModel && selectedDate"
-            v-show="activePanel === 'metrics'"
+            v-if="activePanel === 'metrics' && selectedModel && selectedDate"
             :selected-model="selectedModel"
             :selected-date="selectedDate"
           />
 
           <PointTEC
-            v-if="selectedModel && selectedDate"
-            v-show="activePanel === 'pointtec'"
+            v-else-if="activePanel === 'pointtec' && selectedModel && selectedDate"
             class="pointtec-placeholder"
             :forecast-id="selectedForecast?.id"
           />
         </div>
+      </template>
+
+      <div v-else-if="!isPanelLoading && !error" class="viewer-area no-forecast-selected">
+        <p>Select a model and date to view GIM maps.</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { API_BASE_URL } from './config/api.js'
 import ModelList from './components/ModelList.vue'
 import ForecastCalendar from './components/ForecastCalendar.vue'
 import ImageViewer from './components/ImageViewer.vue';
@@ -139,7 +131,6 @@ import Metrics from './components/Metrics.vue';
 import ImageSlider from './components/ImageSlider.vue';
 import PointTEC from './components/PointTEC.vue';
 import DownloadMultipleData from './components/DownloadMultipleData.vue';
-import { API_BASE_URL } from './config/api.js';
 
 export default {
   name: 'App',
@@ -187,6 +178,11 @@ export default {
       },
       immediate: true
     },
+    activePanel() {
+      this.$nextTick(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
+    }
   },
 
   methods: {
@@ -250,7 +246,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 
 :root {
   --primary-color: #007bff;
@@ -287,10 +283,13 @@ body {
 }
 
 #app {
+  --gim-image-size: 600px;
+  --left-panel-size: 400px;
+  --app-padding: 20px;
+  --panel-padding: 20px;
   max-width: 1200px;
-  margin: 40px auto 0 auto;
-  padding: 0 16px;
-  width: 100%;
+  margin: 0;
+  width: 100vw;
   min-width: 0;
   box-sizing: border-box;
   min-height: 100vh;
@@ -301,50 +300,50 @@ body {
 }
 
 .left-panel {
-  flex: 1 1 320px;
+  flex: 0 1 auto;
+  width: min(var(--left-panel-size), 100%);
+  max-width: 100%;
   min-width: 0;
-  width: 100%;
+  height: fit-content;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
 .left-panel-block {
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
-  padding: 20px 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: var(--panel-padding);
   background: #fff;
   border-radius: 12px;
   border: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-}
-
-.right-panels {
-  flex: 1 1 0;
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
 .right-panel {
-  width: 100%;
+  flex: 0 1 auto;
+  width: min(calc(var(--gim-image-size) + var(--panel-padding) * 2), 100%);
+  max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  padding: 20px 25px;
+  padding: var(--panel-padding);
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 20px;
   position: relative;
   background: #fff;
   border-radius: 12px;
   border: 1px solid var(--border-color);
+  overflow-x: hidden;
 }
 
 .viewer-area {
@@ -357,6 +356,15 @@ body {
   gap: 16px;
   margin: 0;
   padding: 0;
+}
+
+.viewer-area :deep(.metrics-container),
+.viewer-area :deep(.pointtec-container),
+.viewer-area :deep(.pointtec-placeholder) {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .panel-tabs {
@@ -382,6 +390,9 @@ body {
   font-weight: 600;
 }
 
+.pointtec-placeholder {
+}
+
 .forecast-header {
   width: 100%;
   text-align: center;
@@ -390,13 +401,10 @@ body {
   gap: var(--spacing-md);
 }
 
-.shift-select {
-  cursor: pointer;
-}
-
 .forecast-header h2 {
   margin: 0;
   font-size: var(--font-size-2xl);
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color: var(--text-color);
 }
 
@@ -512,28 +520,33 @@ body {
 @media (max-width: 1024px) {
   #app {
     flex-direction: column;
-    padding: 0 16px;
-    margin-top: 24px;
+    padding: var(--app-padding);
   }
   .left-panel,
-  .right-panels {
-    width: 100%;
+  .right-panel {
+    width: min(calc(var(--gim-image-size) + var(--panel-padding) * 2), 100%);
+    max-width: 100%;
     min-width: 0;
+    position: static;
+  }
+  .right-panel,
+  .left-panel-block {
+    padding: var(--panel-padding);
   }
 }
 
 @media (max-width: 768px) {
   #app {
-    padding: 0 8px;
-    margin-top: 12px;
+    padding: var(--app-padding);
     gap: 12px;
   }
-  .left-panel-block,
+  .left-panel,
   .right-panel {
-    padding: 16px;
+    width: 100%;
   }
-  .right-panels {
-    gap: 12px;
+  .right-panel,
+  .left-panel-block {
+    padding: var(--panel-padding);
   }
 }
 
@@ -555,19 +568,12 @@ body {
   text-align: left;
 }
 
-:deep(.download-npz),
-:deep(.download-npz *) {
-  max-width: 600px !important;
-  width: 100% !important;
-  box-sizing: border-box;
-  margin: 0 auto;
-}
-
 .forecast-header,
 .forecast-info,
 .viewer-area > .image-viewer,
-:deep(.download-npz) {
-  max-width: 600px;
+:deep(.download-npz),
+:deep(.download-container) {
+  max-width: 100%;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
@@ -577,6 +583,7 @@ body {
   .image-controls select {
     min-height: 44px;
   }
+
   .forecast-info {
     gap: var(--spacing-md);
   }
@@ -586,12 +593,15 @@ body {
   width: 100%;
   box-sizing: border-box;
   padding: 0;
-  display: block;
 }
+
 .download-btn {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 </style>

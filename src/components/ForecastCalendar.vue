@@ -407,11 +407,13 @@ export default {
 .calendar-container {
   width: 100%;
   max-width: 100%;
+  min-width: 0;
   margin: 0 auto;
   background-color: var(--panel-background, #ffffff);
   border: 1px solid var(--border-color, #ddd);
   border-radius: var(--border-radius, 8px);
   padding: var(--spacing-lg, 20px);
+  box-sizing: border-box;
 }
 
 .calendar-container h2 {
@@ -426,14 +428,18 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-md, 16px);
-  padding: 0 var(--spacing-xs, 8px);
+  padding: 0;
   gap: var(--spacing-xs, 8px);
   flex-wrap: nowrap;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .month-year-wrapper {
   position: relative;
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   justify-content: center;
 }
@@ -443,7 +449,6 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: var(--spacing-sm, 12px) var(--spacing-md, 16px);
   font-size: var(--font-size-md, 1rem);
   font-family: 'Inter', sans-serif;
   font-weight: 700;
@@ -497,7 +502,10 @@ export default {
   border: 1px solid #d7dde3;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
   z-index: 10;
-  min-width: 260px;
+  min-width: 0;
+  width: max-content;
+  max-width: min(260px, calc(100vw - 48px));
+  box-sizing: border-box;
 }
 
 .month-column,
@@ -613,8 +621,11 @@ export default {
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 2px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .weekday, .calendar-day, .blank-day {
@@ -625,6 +636,8 @@ export default {
   text-align: center;
   border-radius: 4px;
   transition: all 0.2s ease;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .weekday {
@@ -632,7 +645,7 @@ export default {
   color: #b3bcc2;
   font-size: var(--font-size-xs, 0.75rem);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
 }
 
 .calendar-day {
@@ -790,6 +803,13 @@ export default {
 
   .calendar-header {
     margin-bottom: var(--spacing-sm, 12px);
+    gap: 4px;
+  }
+
+  .month-year-trigger {
+    padding: 8px 10px;
+    font-size: var(--font-size-sm, 0.875rem);
+    height: 40px;
   }
 
   .month-select {
@@ -807,6 +827,8 @@ export default {
   }
 
   .nav-btn {
+    width: 32px;
+    height: 32px;
     min-width: 32px;
     min-height: 32px;
     max-width: 32px;
@@ -895,8 +917,10 @@ export default {
 /* Улучшения для touch-устройств */
 @media (hover: none) and (pointer: coarse) {
   .nav-btn {
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    max-height: 36px;
   }
 
   .calendar-day.clickable {

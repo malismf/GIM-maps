@@ -150,7 +150,7 @@ select:disabled {
 /* Адаптивность для планшетов */
 @media (max-width: 1024px) {
   .model-list-container {
-    padding: var(--spacing-md, 16px);
+    padding: 0;
   }
 
   .model-list-container h2 {
@@ -166,7 +166,7 @@ select:disabled {
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
   .model-list-container {
-    padding: var(--spacing-sm, 12px);
+    padding: 0;
   }
 
   .model-list-container h2 {
@@ -189,7 +189,7 @@ select:disabled {
 /* Адаптивность для очень маленьких экранов */
 @media (max-width: 480px) {
   .model-list-container {
-    padding: var(--spacing-xs, 8px);
+    padding: 0;
   }
 
   .model-list-container h2 {

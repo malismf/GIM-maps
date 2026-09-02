@@ -387,6 +387,10 @@
     min-height: 48px;
     box-sizing: border-box;
     margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
   
   .download-multiple-btn:hover:not(:disabled) {
@@ -406,10 +410,18 @@
   }
   
   .btn-content {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--spacing-sm, 12px);
     justify-content: center;
+    gap: var(--spacing-sm, 12px);
+    width: auto;
+    max-width: 100%;
+    line-height: 1.2;
+  }
+
+  .btn-content svg {
+    flex-shrink: 0;
+    display: block;
   }
   
   .btn-spinner {

@@ -149,7 +149,9 @@ export default {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--spacing-md, 16px) var(--spacing-lg, 20px);
   font-size: var(--font-size-md, 1rem);
   color: var(--text-color, #333);
@@ -159,9 +161,8 @@ export default {
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
-  align-items: center;
-  justify-content: center;
   min-height: 48px;
+  text-align: center;
 }
 
 .download-btn:hover:not(:disabled) {
@@ -184,10 +185,18 @@ export default {
 }
 
 .btn-content {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm, 12px);
   justify-content: center;
+  gap: var(--spacing-sm, 12px);
+  width: auto;
+  max-width: 100%;
+  line-height: 1.2;
+}
+
+.btn-content svg {
+  flex-shrink: 0;
+  display: block;
 }
 
 .btn-spinner {
@@ -207,7 +216,13 @@ export default {
 
 .download-btns {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
+}
+
+.download-btns .download-npz {
+  flex: 1 1 180px;
+  min-width: 0;
 }
 
 h1 {
@@ -247,7 +262,9 @@ h1 {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: var(--font-size-sm, 0.875rem);
     padding: var(--spacing-md, 16px) var(--spacing-sm, 12px);
     min-height: 48px;

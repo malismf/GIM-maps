@@ -236,6 +236,7 @@
           },
           options: {
             responsive: true,
+            maintainAspectRatio: true,
             plugins: {
               legend: { display: true }
             },
@@ -342,7 +343,9 @@
   .metrics-container {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     background-color: var(--panel-background, #ffffff);
+    box-sizing: border-box;
   }
 
   .metrics-container h2 {
@@ -382,14 +385,18 @@
     gap: var(--spacing-xl, 24px);
   }
 
-  .charts-section {
+    .charts-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--spacing-lg, 20px);
     margin-bottom: var(--spacing-xl, 24px);
+    min-width: 0;
   }
 
   .chart-container {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     padding: var(--spacing-lg, 20px);
     background-color: var(--background-color, #f8f9fa);
     border: 1px solid var(--border-color, #ddd);
@@ -493,7 +500,7 @@
   /* Адаптивность для планшетов */
   @media (max-width: 1024px) {
     .metrics-container {
-      padding: var(--spacing-md, 16px);
+      box-sizing: border-box;
     }
 
     .metrics-container h2 {
@@ -501,7 +508,6 @@
     }
 
     .charts-section {
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: var(--spacing-md, 16px);
     }
 
@@ -530,8 +536,7 @@
   /* Адаптивность для мобильных устройств */
   @media (max-width: 768px) {
     .metrics-container {
-      padding: var(--spacing-sm, 12px);
-      margin-top: var(--spacing-md, 16px);
+      box-sizing: border-box;
     }
 
     .metrics-container h2 {
@@ -540,7 +545,6 @@
     }
 
     .charts-section {
-      grid-template-columns: 1fr;
       gap: var(--spacing-sm, 12px);
     }
 
@@ -582,7 +586,7 @@
   /* Адаптивность для очень маленьких экранов */
   @media (max-width: 480px) {
     .metrics-container {
-      padding: var(--spacing-xs, 8px);
+      box-sizing: border-box;
     }
 
     .metrics-container h2 {

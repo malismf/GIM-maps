@@ -285,6 +285,8 @@
 
   .pointtec-container {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     background-color: var(--panel-background, #ffffff);
     box-sizing: border-box;
   }
