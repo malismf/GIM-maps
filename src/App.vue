@@ -339,7 +339,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 20px;
   position: relative;
   background: #fff;
   border-radius: 12px;
