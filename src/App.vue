@@ -405,6 +405,7 @@ body {
 .forecast-header h2 {
   margin: 0;
   font-size: var(--font-size-2xl);
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color: var(--text-color);
 }
 
